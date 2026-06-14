@@ -1,7 +1,11 @@
+export type MediaType = 'Anime' | 'Movie' | 'TV Series'
+
+export type MediaStatus = 'Planned' | 'Watching' | 'Completed' | 'Dropped'
+
 export type MediaItem = {
   id: string
   title: string
-  type: 'Anime' | 'Movie' | 'TV Series'
-  status: 'Planned' | 'Watching' | 'Completed' | 'Dropped'
+  type: MediaType
+  status: MediaStatus
   poster: string
 }
