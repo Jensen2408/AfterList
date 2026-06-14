@@ -10,9 +10,11 @@ function MediaCard({ item }: MediaCardProps) {
       <img className="media-poster" src={item.poster} alt={item.title} />
 
       <div className="media-info">
-        <p className="media-type">{item.type}</p>
-        <h2>{item.title}</h2>
-        <span className="media-status">{item.status}</span>
+        <strong>{item.title}</strong>
+        <div className="card-meta">
+          <span className="type-label">{item.type}</span>
+          <span className={`pill ${item.status}`}>{item.status}</span>
+        </div>
       </div>
     </article>
   )

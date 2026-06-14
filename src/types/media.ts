@@ -8,4 +8,8 @@ export type MediaItem = {
   type: MediaType
   status: MediaStatus
   poster: string
+  backdrop: string
+  progress: string
+  rating: string
+  description: string
 }

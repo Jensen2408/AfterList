@@ -9,12 +9,18 @@ function App() {
   return (
     <main className="app">
       <nav className="nav">
-        <NavLink to="/" end>
+        <NavLink className="brand" to="/" end>
           AfterList
         </NavLink>
-        <NavLink to="/anime">Anime</NavLink>
-        <NavLink to="/movies">Movies</NavLink>
-        <NavLink to="/series">TV Series</NavLink>
+
+        <div className="nav-links">
+          <NavLink to="/" end>
+            All
+          </NavLink>
+          <NavLink to="/anime">Anime</NavLink>
+          <NavLink to="/movies">Movies</NavLink>
+          <NavLink to="/series">TV Series</NavLink>
+        </div>
       </nav>
 
       <Routes>
