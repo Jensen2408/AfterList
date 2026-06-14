@@ -108,3 +108,50 @@ body {
   font-size: 12px;
   font-weight: 700;
 }
+
+.nav a.active {
+  color: white;
+}
+
+.nav a.active::after {
+  width: 100%;
+}
+
+.nav {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.nav a {
+  color: #a3a3a3;
+  text-decoration: none;
+  font-weight: 700;
+  position: relative;
+}
+
+.nav a:hover {
+  color: white;
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: width 160ms ease;
+}
+
+.nav a:hover::after,
+.nav a.active::after {
+  width: 100%;
+}
+
+.nav a.active {
+  color: white;
+}
+

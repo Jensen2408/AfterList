@@ -1,4 +1,4 @@
-import { Link, Route, Routes } from 'react-router-dom'
+import { NavLink, Route, Routes } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import AnimePage from './pages/AnimePage'
 import MoviesPage from './pages/MoviesPage'
@@ -9,10 +9,12 @@ function App() {
   return (
     <main className="app">
       <nav className="nav">
-        <Link to="/">AfterList</Link>
-        <Link to="/anime">Anime</Link>
-        <Link to="/movies">Movies</Link>
-        <Link to="/series">TV Series</Link>
+        <NavLink to="/" end>
+          AfterList
+        </NavLink>
+        <NavLink to="/anime">Anime</NavLink>
+        <NavLink to="/movies">Movies</NavLink>
+        <NavLink to="/series">TV Series</NavLink>
       </nav>
 
       <Routes>
