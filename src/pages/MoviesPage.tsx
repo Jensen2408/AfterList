@@ -1,20 +1,7 @@
-import MediaCard from '../components/MediaCard'
-import { demoItems } from '../data/demoItems'
+import CategoryPage from '../components/CategoryPage'
 
 function MoviesPage() {
-  const movieItems = demoItems.filter((item) => item.type === 'Movie')
-
-  return (
-    <section>
-      <h1>Movies</h1>
-
-      <div className="media-grid">
-        {movieItems.map((item) => (
-          <MediaCard key={item.id} item={item} />
-        ))}
-      </div>
-    </section>
-  )
+  return <CategoryPage title="Movies" type="Movie" />
 }
 
 export default MoviesPage
