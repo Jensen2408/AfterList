@@ -1,73 +1,80 @@
-# React + TypeScript + Vite
+# AfterList
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AfterList is a personal watchlist app for tracking **anime, movies, and TV series**.
 
-Currently, two official plugins are available:
+The goal of this project is to build a clean, Apple TV / Netflix-inspired watchlist while learning **React**, **TypeScript**, and modern frontend development step by step.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Project Goals
 
-## React Compiler
+- Track anime, movies, and TV series
+- Keep the design clean, dark, and simple
+- Learn React and TypeScript from the ground up
+- Build everything step by step instead of copy-pasting blindly
+- Start local-first, then later add APIs, accounts, sync, and sharing
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Current Status
 
-## Expanding the ESLint configuration
+This is the beginner version of AfterList.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The project is being built from scratch to understand every part of the codebase.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Planned Features
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Phase 1 — Basic App
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Basic homepage
+- Media cards
+- Demo anime/movie/TV data
+- Type filters
+- Status filters
+- Search
+- Add item form
+- Edit item
+- Remove item
+- Save data with localStorage
+
+### Phase 2 — API Search
+
+- AniList search for anime
+- TMDB search for movies and TV series
+- Auto-fill posters, titles, descriptions, and metadata
+
+### Phase 3 — Accounts and Sync
+
+- User accounts
+- Login system
+- Database storage
+- Sync watchlist across devices
+
+### Phase 4 — Sharing
+
+- Public user profiles
+- Friend sharing
+- Optional public watchlists
+
+## Tech Stack
+
+- React
+- TypeScript
+- Vite
+- CSS
+- Git and GitHub
+
+## Project Structure
+
+Planned structure:
+
+```text
+src/
+├─ components/   # Reusable UI pieces
+├─ data/         # Temporary demo data
+├─ types/        # TypeScript types
+├─ utils/        # Helper functions
+├─ App.tsx       # Main app component
+├─ App.css       # Main app styling
+└─ main.tsx      # React entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## License
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+This project is licensed under the MIT License.
