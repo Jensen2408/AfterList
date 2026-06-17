@@ -4,17 +4,32 @@
 .watchlist-stack,
 .watchlist-row,
 .row-scroll-shell,
-.row-scroll,
 .media-grid,
 .media-card-wrapper,
 .media-card {
   overflow: visible !important;
 }
 
+.row-scroll-shell {
+  position: relative !important;
+  margin-inline: -12px !important;
+  padding-inline: 12px !important;
+}
+
 .row-scroll {
   min-height: auto !important;
   padding-top: 16px !important;
   padding-bottom: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x proximity !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.row-scroll::-webkit-scrollbar {
+  display: none !important;
 }
 
 .watchlist-row {
@@ -22,6 +37,7 @@
 }
 
 .row-scroll .media-card-wrapper {
+  scroll-snap-align: start !important;
   transform-origin: center center !important;
 }
 
@@ -37,7 +53,7 @@
   border-color: rgba(255, 255, 255, 0.34) !important;
   box-shadow:
     0 36px 90px rgba(0, 0, 0, 0.82),
-    0 18px 42px rgba(132, 118, 255, 0.2),
+    0 18px 42px rgba(255, 255, 255, 0.12),
     0 0 0 1px rgba(255, 255, 255, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
@@ -49,7 +65,86 @@
   transform: none !important;
 }
 
+.row-scroll-button {
+  position: absolute !important;
+  top: 50% !important;
+  z-index: 80 !important;
+  display: grid !important;
+  width: 42px !important;
+  height: 64px !important;
+  place-items: center !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(145deg, rgba(62, 63, 70, 0.88), rgba(18, 19, 24, 0.88)) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  cursor: pointer !important;
+  font-size: 36px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  opacity: 0 !important;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.62) !important;
+  transform: translateY(-50%) scale(0.94) !important;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease !important;
+}
+
+.row-scroll-shell:hover .row-scroll-button,
+.row-scroll-button:focus-visible {
+  opacity: 1 !important;
+  transform: translateY(-50%) scale(1) !important;
+}
+
+.row-scroll-button:hover {
+  border-color: rgba(255, 255, 255, 0.34) !important;
+  background:
+    linear-gradient(145deg, rgba(82, 83, 90, 0.94), rgba(26, 27, 32, 0.94)) !important;
+}
+
+.row-scroll-button-left {
+  left: -2px !important;
+}
+
+.row-scroll-button-right {
+  right: -2px !important;
+}
+
+.row-fade {
+  pointer-events: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  z-index: 40 !important;
+  display: block !important;
+  width: 82px !important;
+}
+
+.row-fade-left {
+  left: 0 !important;
+  background: linear-gradient(90deg, rgba(5, 6, 8, 0.9), rgba(5, 6, 8, 0)) !important;
+}
+
+.row-fade-right {
+  right: 0 !important;
+  background: linear-gradient(270deg, rgba(5, 6, 8, 0.9), rgba(5, 6, 8, 0)) !important;
+}
+
+@media (hover: none) {
+  .row-scroll-button {
+    opacity: 0.9 !important;
+    transform: translateY(-50%) scale(0.92) !important;
+  }
+}
+
 @media (max-width: 700px) {
+  .row-scroll-shell {
+    margin-inline: -8px !important;
+    padding-inline: 8px !important;
+  }
+
   .row-scroll {
     min-height: auto !important;
     padding-top: 14px !important;
@@ -58,5 +153,13 @@
 
   .watchlist-row {
     margin-bottom: 26px !important;
+  }
+
+  .row-scroll-button {
+    display: none !important;
+  }
+
+  .row-fade {
+    width: 36px !important;
   }
 }
