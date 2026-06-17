@@ -5,6 +5,7 @@ import AnimePage from './pages/AnimePage'
 import MoviesPage from './pages/MoviesPage'
 import SeriesPage from './pages/SeriesPage'
 import './App.css'
+import './glassy-fixes.css'
 import Footer from './components/Footer'
 import { useWatchlist } from './hooks/useWatchlist'
 function App() {
