@@ -3,12 +3,19 @@ import type { MediaItem } from '../types/media'
 type MediaDetailsModalProps = {
   item: MediaItem
   onClose: () => void
+  onRemove: (id: string) => void
 }
 
-function MediaDetailsModal({ item, onClose }: MediaDetailsModalProps) {
+function MediaDetailsModal({ item, onClose, onRemove }: MediaDetailsModalProps) {
   return (
-    <div className="modal-backdrop">
-      <section className="details-modal" role="dialog" aria-modal="true" aria-label={item.title}>
+    <div className="modal-backdrop" onClick={onClose}>
+      <section
+        className="details-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label={item.title}
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className="modal-close" type="button" aria-label="Close details" onClick={onClose}>
           ✕
         </button>
@@ -24,6 +31,19 @@ function MediaDetailsModal({ item, onClose }: MediaDetailsModalProps) {
             <span className={`pill ${item.status}`}>{item.status}</span>
             <span>{item.progress}</span>
             <span>★ {item.rating}</span>
+          </div>
+
+          {/* Delete Action Button */}
+          <div className="modal-footer" style={{ marginTop: '2rem' }}>
+            <button
+              className="delete-btn"
+              type="button"
+              aria-label={`Delete ${item.title}`}
+              title="Delete"
+              onClick={() => onRemove(item.id)}
+            >
+              Delete
+            </button>
           </div>
         </div>
       </section>

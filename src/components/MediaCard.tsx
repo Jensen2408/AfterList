@@ -3,21 +3,32 @@ import type { MediaItem } from '../types/media'
 type MediaCardProps = {
   item: MediaItem
   onSelect: (item: MediaItem) => void
+  onRemove?: (id: string) => void
 }
 
 function MediaCard({ item, onSelect }: MediaCardProps) {
   return (
-    <button className="media-card" type="button" aria-label={`Open details for ${item.title}`} onClick={() => onSelect(item)}>
-      <img className="media-poster" src={item.poster} alt={item.title} />
+    <div className="media-card-wrapper" style={{ position: 'relative' }}>
+      {/* Main clickable card */}
+      <button 
+        className="media-card" 
+        type="button" 
+        aria-label={`Open details for ${item.title}`} 
+        onClick={() => onSelect(item)}
+      >
+        <img className="media-poster" src={item.poster} alt={item.title} />
 
-      <span className="media-info">
-        <strong>{item.title}</strong>
-        <span className="card-meta">
-          <span className="type-label">{item.type}</span>
-          <span className={`pill ${item.status}`}>{item.status}</span>
+        <span className="media-info">
+          <strong>{item.title}</strong>
+          <span className="card-meta">
+            <span className="type-label">{item.type}</span>
+            <span className={`pill ${item.status}`}>{item.status}</span>
+          </span>
         </span>
-      </span>
-    </button>
+      </button>
+
+      {/* deletion is handled in the details modal */}
+    </div>
   )
 }
 

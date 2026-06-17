@@ -19,11 +19,18 @@ const statusFilters: { label: string; value: StatusFilter }[] = [
 function HomePage() {
   const [selectedStatus, setSelectedStatus] = useState<StatusFilter>('All')
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
-  const hero = demoItems[0]
+  const [items, setItems] = useState<MediaItem[]>(demoItems)
+
+  const hero = items[0] ?? demoItems[0]
   const visibleItems =
     selectedStatus === 'All'
-      ? demoItems
-      : demoItems.filter((item) => item.status === selectedStatus)
+      ? items
+      : items.filter((item) => item.status === selectedStatus)
+
+  const handleRemove = (id: string) => {
+    setItems((prev) => prev.filter((it) => it.id !== id))
+    setSelectedItem((current) => (current && current.id === id ? null : current))
+  }
 
   return (
     <>
@@ -96,7 +103,7 @@ function HomePage() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.2 }}
               >
-                <MediaCard item={item} onSelect={setSelectedItem} />
+                <MediaCard item={item} onSelect={setSelectedItem} onRemove={handleRemove} />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -104,7 +111,7 @@ function HomePage() {
       </section>
 
       {selectedItem && (
-        <MediaDetailsModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+        <MediaDetailsModal item={selectedItem} onClose={() => setSelectedItem(null)} onRemove={handleRemove} />
       )}
     </>
   )

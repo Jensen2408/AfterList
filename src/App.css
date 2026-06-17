@@ -468,6 +468,34 @@ p {
   line-height: 1.7;
 }
 
+/* Delete button in modal */
+.delete-btn {
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff5b5b, #e84343);
+  color: #fff;
+  border: 2px solid #5a0f0f; /* dark red outline */
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease, border-color 0.12s ease;
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(90, 15, 15, 0.20);
+  border: 5px solid #ad2121;
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
+
+.delete-btn:focus {
+  outline: 3px solid rgba(122, 18, 18, 0.18);
+  outline-offset: 4px;
+}
+
 @media (max-width: 900px) {
   .section-head {
     align-items: flex-start;
