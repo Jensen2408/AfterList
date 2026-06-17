@@ -22,14 +22,14 @@ The project is being built from scratch to understand every part of the codebase
 
 ### Phase 1 — Basic App
 
-- Basic homepage
-- Media cards
-- Demo anime/movie/TV data
-- Type filters
-- Status filters
+- Basic homepage ✅
+- Media cards ✅
+- Demo anime/movie/TV data ✅
+- Type filters ✅
+- Status filters ✅
+- Edit Status
 - Search
-- Add item form
-- Edit item
+- Add item
 - Remove item
 - Save data with localStorage
 
@@ -59,6 +59,7 @@ The project is being built from scratch to understand every part of the codebase
 - Vite
 - CSS
 - Git and GitHub
+- Motion
 
 ## Project Structure
 
