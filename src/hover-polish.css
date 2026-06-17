@@ -14,11 +14,11 @@
 .row-scroll {
   min-height: auto !important;
   padding-top: 16px !important;
-  padding-bottom: 18px !important;
+  padding-bottom: 8px !important;
 }
 
 .watchlist-row {
-  margin-bottom: 42px !important;
+  margin-bottom: 32px !important;
 }
 
 .row-scroll .media-card-wrapper {
@@ -53,10 +53,10 @@
   .row-scroll {
     min-height: auto !important;
     padding-top: 14px !important;
-    padding-bottom: 16px !important;
+    padding-bottom: 6px !important;
   }
 
   .watchlist-row {
-    margin-bottom: 34px !important;
+    margin-bottom: 26px !important;
   }
 }
