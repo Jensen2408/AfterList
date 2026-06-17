@@ -1,0 +1,45 @@
+/* Final cleanup layer for the Lovable-style integration. */
+
+/* Row/grid areas should not draw their own glass/background panel. */
+.watchlist-stack,
+.watchlist-row,
+.row-scroll-shell,
+.row-scroll,
+.media-grid {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.row-scroll {
+  min-height: auto;
+  padding-bottom: 12px;
+}
+
+.row-fade {
+  display: none;
+}
+
+/* Posters should be clean images only: no title initials, no type/rating/progress overlays. */
+.media-poster-shell::before,
+.media-poster-shell::after,
+.media-card-topline,
+.poster-badge,
+.poster-year {
+  display: none !important;
+  content: none !important;
+}
+
+.media-poster-shell {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.media-poster {
+  opacity: 1;
+}
+
+.poster-shine {
+  z-index: 2;
+  opacity: 0.42;
+}
