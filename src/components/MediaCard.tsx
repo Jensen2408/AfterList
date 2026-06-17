@@ -21,23 +21,25 @@ function MediaCard({ item, onSelect }: MediaCardProps) {
         onClick={() => onSelect(item)}
       >
         <span className="media-poster-shell">
-          <img
-            className="media-poster"
-            src={item.poster}
-            alt={item.title}
-            loading="lazy"
-            onError={(event) => {
-              event.currentTarget.style.display = 'none'
-            }}
-          />
-          <span className="poster-shine" aria-hidden="true" />
-        </span>
+          <span className="media-poster-frame">
+            <img
+              className="media-poster"
+              src={item.poster}
+              alt={item.title}
+              loading="lazy"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none'
+              }}
+            />
+            <span className="poster-shine" aria-hidden="true" />
+          </span>
 
-        <span className="media-info">
-          <strong>{item.title}</strong>
-          <span className="card-meta">
-            <span className="type-label">{item.type}</span>
-            <span className={`pill ${item.status}`}>{item.status}</span>
+          <span className="media-info media-info-inside">
+            <strong>{item.title}</strong>
+            <span className="card-meta">
+              <span className="type-label">{item.type}</span>
+              <span className={`pill ${item.status}`}>{item.status}</span>
+            </span>
           </span>
         </span>
       </button>
