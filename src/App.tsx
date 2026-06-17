@@ -8,6 +8,7 @@ import './App.css'
 import './glassy-fixes.css'
 import './hover-polish.css'
 import './background-polish.css'
+import './edge-fade-polish.css'
 import Footer from './components/Footer'
 import { useWatchlist } from './hooks/useWatchlist'
 function App() {
