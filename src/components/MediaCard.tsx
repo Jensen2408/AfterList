@@ -7,15 +7,6 @@ type MediaCardProps = {
   onRemove?: (id: string) => void
 }
 
-const getBadge = (title: string) => {
-  const words = title.split(/\s+/).filter(Boolean)
-
-  if (words.length === 1) return words[0].slice(0, 8).toUpperCase()
-  if (words.length <= 3) return words.map((word) => word[0]).join('').toUpperCase()
-
-  return words[0].slice(0, 6).toUpperCase()
-}
-
 function MediaCard({ item, onSelect }: MediaCardProps) {
   return (
     <motion.article
@@ -29,7 +20,7 @@ function MediaCard({ item, onSelect }: MediaCardProps) {
         aria-label={`Open details for ${item.title}`}
         onClick={() => onSelect(item)}
       >
-        <span className="media-poster-shell" data-title={getBadge(item.title)}>
+        <span className="media-poster-shell">
           <img
             className="media-poster"
             src={item.poster}
@@ -40,12 +31,6 @@ function MediaCard({ item, onSelect }: MediaCardProps) {
             }}
           />
           <span className="poster-shine" aria-hidden="true" />
-          <span className="media-card-topline">
-            <span>{item.type}</span>
-            <span>★ {item.rating}</span>
-          </span>
-          <span className="poster-badge">{getBadge(item.title)}</span>
-          <span className="poster-year">{item.progress}</span>
         </span>
 
         <span className="media-info">
