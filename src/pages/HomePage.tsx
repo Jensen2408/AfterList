@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import MediaCard from '../components/MediaCard'
 import MediaDetailsModal from '../components/MediaDetailsModal'
 import { demoItems } from '../data/demoItems'
@@ -51,25 +52,55 @@ function HomePage() {
 
           <div className="section-controls">
             <div className="chips" aria-label="Watch status filters">
-              {statusFilters.map((filter) => (
-                <button
-                  className={selectedStatus === filter.value ? 'chip active' : 'chip'}
-                  key={filter.value}
-                  type="button"
-                  onClick={() => setSelectedStatus(filter.value)}
-                >
-                  {filter.label}
-                </button>
-              ))}
+              {statusFilters.map((filter) => {
+                const isActive = selectedStatus === filter.value
+                return (
+                  <button
+                    className={isActive ? 'chip active' : 'chip'}
+                    key={filter.value}
+                    type="button"
+                    onClick={() => setSelectedStatus(filter.value)}
+                    style={{ position: 'relative' }}
+                  >
+                    <span style={{ position: 'relative', zIndex: 2 }}>
+                      {filter.label}
+                    </span>
+                    {isActive && (
+                      <motion.span
+                        layoutId="activeChipBg"
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          backgroundColor: 'var(--chip-active-bg, #333)',
+                          borderRadius: 'inherit',
+                          zIndex: 1,
+                        }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
 
-        <div className="media-grid">
-          {visibleItems.map((item) => (
-            <MediaCard key={item.id} item={item} onSelect={setSelectedItem} />
-          ))}
-        </div>
+        <motion.div layout className="media-grid">
+          <AnimatePresence mode="popLayout">
+            {visibleItems.map((item) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <MediaCard item={item} onSelect={setSelectedItem} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </section>
 
       {selectedItem && (

@@ -672,3 +672,30 @@ p {
     gap: 10px;
   }
 }
+
+/* ==========================================================================
+   Motion Override Adjustments 
+   Ensures layoutId slides clean without fighting hardcoded static backgrounds
+   ========================================================================== */
+
+.chips .chip.active {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: inherit !important;
+}
+
+.chips .chip {
+  background: transparent;
+  border-color: transparent;
+}
+
+.nav-links a.active {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #050505 !important;
+}
+
+.nav-links a {
+  background: transparent;
+  border-color: transparent;
+}
