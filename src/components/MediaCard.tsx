@@ -11,8 +11,8 @@ function MediaCard({ item, onSelect }: MediaCardProps) {
   return (
     <motion.article
       className="media-card-wrapper"
-      whileHover={{ y: -4, scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+      whileHover={{ y: -6 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 24 }}
     >
       <button
         className="media-card"
