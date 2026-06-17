@@ -1,4 +1,4 @@
-/* Final hover polish: cards grow cleanly without clipping. */
+/* Final hover polish: cards grow cleanly without adding chunky row spacing. */
 .app,
 .library-section,
 .watchlist-stack,
@@ -12,9 +12,13 @@
 }
 
 .row-scroll {
-  min-height: 330px !important;
-  padding-top: 18px !important;
-  padding-bottom: 54px !important;
+  min-height: auto !important;
+  padding-top: 16px !important;
+  padding-bottom: 18px !important;
+}
+
+.watchlist-row {
+  margin-bottom: 42px !important;
 }
 
 .row-scroll .media-card-wrapper {
@@ -47,8 +51,12 @@
 
 @media (max-width: 700px) {
   .row-scroll {
-    min-height: 300px !important;
-    padding-top: 16px !important;
-    padding-bottom: 48px !important;
+    min-height: auto !important;
+    padding-top: 14px !important;
+    padding-bottom: 16px !important;
+  }
+
+  .watchlist-row {
+    margin-bottom: 34px !important;
   }
 }
