@@ -1,8 +1,10 @@
 import type { CSSProperties } from 'react'
 import { useState } from 'react'
+import { motion } from 'motion/react'
 import MediaCard from '../components/MediaCard'
 import MediaDetailsModal from '../components/MediaDetailsModal'
 import type { MediaItem, MediaType } from '../types/media'
+
 type CategoryPageProps = {
   title: string
   subtitle: string
@@ -10,38 +12,44 @@ type CategoryPageProps = {
   items: MediaItem[]
   onRemove: (id: string) => void
 }
+
 function CategoryPage({ title, subtitle, type, items, onRemove }: CategoryPageProps) {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
-
-  // Filter the globally-provided items dynamically by type
   const filteredItems = items.filter((item) => item.type === type)
   const hero = filteredItems[0]
+
   return (
     <>
-      <section
-        className="hero-card category-hero"
+      <motion.section
+        className="hero-card category-hero glass-panel"
         style={{ '--hero-image': `url(${hero?.backdrop ?? ''})` } as CSSProperties}
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="hero-content">
           <p className="eyebrow">AfterList category</p>
           <h1>{title}</h1>
           <p className="hero-description">{subtitle}</p>
         </div>
-      </section>
-      <section>
-        <div className="section-head">
+      </motion.section>
+
+      <section className="library-section">
+        <div className="section-head library-head">
           <div>
             <p className="eyebrow">Library</p>
             <h2>{title} list</h2>
           </div>
+          <p className="section-copy">{filteredItems.length} saved {title.toLowerCase()} in your current list.</p>
         </div>
-        <div className="media-grid">
+
+        <motion.div layout className="media-grid">
           {filteredItems.map((item) => (
             <MediaCard key={item.id} item={item} onSelect={setSelectedItem} />
           ))}
-        </div>
+        </motion.div>
       </section>
-      {/* Call the onRemove prop (defined in App.tsx) and close the modal on delete */}
+
       {selectedItem && (
         <MediaDetailsModal
           item={selectedItem}
@@ -55,4 +63,5 @@ function CategoryPage({ title, subtitle, type, items, onRemove }: CategoryPagePr
     </>
   )
 }
+
 export default CategoryPage
