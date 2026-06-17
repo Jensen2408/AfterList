@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { motion } from 'motion/react'
 import MediaCard from './MediaCard'
 import type { MediaItem } from '../types/media'
@@ -9,26 +9,11 @@ type WatchlistRowProps = {
   onSelect: (item: MediaItem) => void
 }
 
-const getUniqueItems = (items: MediaItem[]) => {
-  const seen = new Set<string>()
-
-  return items.filter((item) => {
-    const key = item.id || `${item.title}-${item.type}`
-
-    if (seen.has(key)) {
-      return false
-    }
-
-    seen.add(key)
-    return true
-  })
-}
-
 export default function WatchlistRow({ title, items, onSelect }: WatchlistRowProps) {
   const rowRef = useRef<HTMLDivElement | null>(null)
-  const uniqueItems = useMemo(() => getUniqueItems(items), [items])
+  const showScrollControls = items.length > 4
 
-  if (uniqueItems.length === 0) return null
+  if (items.length === 0) return null
 
   const scrollRow = (direction: 'left' | 'right') => {
     const row = rowRef.current
@@ -55,36 +40,42 @@ export default function WatchlistRow({ title, items, onSelect }: WatchlistRowPro
     >
       <div className="row-head">
         <h2>{title}</h2>
-        <span>{uniqueItems.length} items</span>
+        <span>{items.length} items</span>
       </div>
 
-      <div className="row-scroll-shell">
-        <button
-          className="row-scroll-button row-scroll-button-left"
-          type="button"
-          aria-label={`Scroll ${title} left`}
-          onClick={() => scrollRow('left')}
-        >
-          ‹
-        </button>
+      <div className={`row-scroll-shell${showScrollControls ? ' has-scroll-controls' : ''}`}>
+        {showScrollControls && (
+          <button
+            className="row-scroll-button row-scroll-button-left"
+            type="button"
+            aria-label={`Scroll ${title} left`}
+            onClick={() => scrollRow('left')}
+          >
+            ‹
+          </button>
+        )}
 
         <div className="row-scroll" ref={rowRef}>
-          {uniqueItems.map((item) => (
-            <MediaCard key={item.id} item={item} onSelect={onSelect} />
+          {items.map((item, index) => (
+            <MediaCard key={`${item.id}-${index}`} item={item} onSelect={onSelect} />
           ))}
         </div>
 
-        <button
-          className="row-scroll-button row-scroll-button-right"
-          type="button"
-          aria-label={`Scroll ${title} right`}
-          onClick={() => scrollRow('right')}
-        >
-          ›
-        </button>
+        {showScrollControls && (
+          <>
+            <button
+              className="row-scroll-button row-scroll-button-right"
+              type="button"
+              aria-label={`Scroll ${title} right`}
+              onClick={() => scrollRow('right')}
+            >
+              ›
+            </button>
 
-        <div className="row-fade row-fade-left" aria-hidden="true" />
-        <div className="row-fade row-fade-right" aria-hidden="true" />
+            <div className="row-fade row-fade-left" aria-hidden="true" />
+            <div className="row-fade row-fade-right" aria-hidden="true" />
+          </>
+        )}
       </div>
     </motion.section>
   )
