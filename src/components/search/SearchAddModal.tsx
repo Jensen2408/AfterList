@@ -38,6 +38,13 @@ const mobileItemTransition = {
   mass: 0.68,
 } as const
 
+const mobilePanelTransition = {
+  type: 'spring',
+  stiffness: 420,
+  damping: 38,
+  mass: 0.76,
+} as const
+
 const reducedTransition = { duration: 0.01 } as const
 
 type SearchAddModalProps = {
@@ -82,11 +89,7 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
   const compactTransition = shouldReduceMotion ? reducedTransition : { duration: 0.14, ease: modalEase }
   const sharedTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobileSpringTransition : springTransition
   const itemTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobileItemTransition : fastSpringTransition
-  const panelTransition = shouldReduceMotion
-    ? reducedTransition
-    : isMobile
-      ? { type: 'spring', stiffness: 420, damping: 38, mass: 0.76 }
-      : { duration: 0.2, ease: modalEase }
+  const panelTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobilePanelTransition : { duration: 0.2, ease: modalEase }
   const detailModalRoot = typeof document === 'undefined' ? null : document.body
 
   const results = useMemo(() => {
