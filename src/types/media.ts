@@ -1,6 +1,6 @@
 export type MediaType = 'Anime' | 'Movie' | 'TV Series'
 
-export type MediaStatus = 'Planned' | 'Watching' | 'Completed' | 'Dropped'
+export type MediaStatus = 'Planned' | 'Watching' | 'Watched' | 'Dropped'
 
 export type MediaItem = {
   id: string
