@@ -2,7 +2,13 @@
 
 AfterList is a dark-mode personal media tracker for **anime, movies, and TV series**.
 
-The goal is to build a clean Apple TV / Netflix-inspired watchlist while learning **React**, **TypeScript**, **Vite**, Motion, CSS architecture, and real API integration step by step.
+The goal is to build a clean Apple TV / Netflix-inspired watchlist while learning **React**, **TypeScript**, **Vite**, Motion, CSS architecture, deployment, and real API integration step by step.
+
+## Live Deployment
+
+AfterList is deployed on **Vercel** from the `main` branch.
+
+The app uses Vercel's static Vite deployment flow and a `vercel.json` rewrite so direct refreshes on routes like `/anime`, `/movies`, and `/series` work correctly.
 
 ## Project Goals
 
@@ -10,19 +16,22 @@ The goal is to build a clean Apple TV / Netflix-inspired watchlist while learnin
 - Keep the design dark, cinematic, glassy, and polished
 - Learn React and TypeScript from the ground up
 - Use real API search results instead of local mock catalogs
+- Deploy the app as a real hosted website
 - Keep the codebase organized enough to grow without becoming messy
 
 ## Current Status
 
-Phase 1 is complete and Phase 2 has started. The app saves API-backed items to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and now uses TMDB-powered search when a TMDB env key is configured.
+Phase 1 is complete and Phase 2 has started. The app saves API-backed items to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and uses TMDB-powered search when a TMDB env key is configured.
 
 Implemented so far:
 
+- Live Vercel deployment
 - Homepage hero with automatic random rotation
 - Motion-powered hero transitions
 - Hero preview rail with clickable thumbnails
 - Netflix-like watchlist rows
-- Motion carousel row transitions
+- Desktop row arrows
+- Mobile native swipe/grab rows
 - Media cards with poster, title, type, and status
 - Statuses: `Planned`, `Watching`, `Watched`, `Dropped`
 - Automatic migration from old `Completed` status to `Watched`
@@ -43,7 +52,7 @@ Implemented so far:
 
 ## Roadmap
 
-### Phase 1 — Local App Foundation
+### Phase 1 — App Foundation
 
 - Basic homepage ✅
 - Media cards ✅
@@ -56,6 +65,7 @@ Implemented so far:
 - Duplicate prevention ✅
 - Motion animations for hero, rows, search, and modals ✅
 - Mobile layout and performance stabilization ✅
+- Vercel deployment ✅
 
 ### Phase 2 — Real API Search/Add Flow
 
@@ -66,6 +76,8 @@ Implemented so far:
 - Map TMDB results into the app `MediaItem` structure ✅
 - Prevent duplicates using API IDs/source IDs ✅
 - Add API-based item creation ✅
+- Add TMDB attribution in the UI
+- Move TMDB requests behind a Vercel/serverless API proxy
 - Add anime API later, likely AniList or Jikan
 
 ### Phase 3 — Accounts and Sync
@@ -103,7 +115,54 @@ Restart the dev server after changing env files:
 npm run dev
 ```
 
-Important: Vite exposes `VITE_*` variables to the browser bundle. This is fine for local learning, but a production version should proxy TMDB through a backend/serverless function instead of shipping private credentials to the client.
+Important: Vite exposes `VITE_*` variables to the browser bundle. This is fine for local learning and personal demos, but a production version should proxy TMDB through a backend/serverless function instead of shipping private credentials to the client.
+
+## Vercel Deployment
+
+Recommended Vercel settings:
+
+```text
+Framework Preset: Vite
+Root Directory: ./
+Install Command: npm install
+Build Command: npm run build
+Output Directory: dist
+Production Branch: main
+```
+
+Required environment variable on Vercel:
+
+```env
+VITE_TMDB_API_KEY=your_tmdb_v3_api_key
+```
+
+or:
+
+```env
+VITE_TMDB_ACCESS_TOKEN=your_tmdb_read_access_token
+```
+
+The project includes `vercel.json` with a single-page-app rewrite:
+
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
+```
+
+That keeps route refreshes working for `/anime`, `/movies`, and `/series`.
+
+## TMDB Notice
+
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+TMDB usage in this project is intended for personal, educational, and non-commercial use unless a separate commercial agreement with TMDB is obtained.
 
 ## Tech Stack
 
@@ -113,6 +172,7 @@ Important: Vite exposes `VITE_*` variables to the browser bundle. This is fine f
 - CSS
 - Motion / `motion/react`
 - TMDB API
+- Vercel
 - Git and GitHub
 
 ## Project Structure
@@ -143,11 +203,31 @@ src/
 └─ main.tsx         # React entry point
 ```
 
+## Local Development
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
 ## Git Notes
 
-Active development is on `Improved-UI`.
+`main` is the deployed production branch.
 
-`main` should stay untouched unless a merge is explicitly requested.
+Use short-lived feature branches for new work, then merge back into `main` through pull requests.
 
 ## License
 
