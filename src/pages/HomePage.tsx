@@ -13,7 +13,7 @@ type HomePageProps = {
 
 const watchRows: { title: string; status: MediaStatus }[] = [
   { title: 'Watching', status: 'Watching' },
-  { title: 'Watched', status: 'Completed' },
+  { title: 'Watched', status: 'Watched' },
   { title: 'Planned', status: 'Planned' },
   { title: 'Dropped', status: 'Dropped' },
 ]
