@@ -14,26 +14,30 @@ The goal is to build a clean Apple TV / Netflix-inspired watchlist while learnin
 
 ## Current Status
 
-Phase 1 is mostly complete. The app currently runs on local/mock data, saves to `localStorage`, and uses a polished dark glass UI.
+Phase 1 is mostly complete. The app currently runs on local/mock data, saves to `localStorage`, and uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations.
 
 Implemented so far:
 
 - Homepage hero with automatic random rotation
+- Motion-powered hero transitions
 - Hero preview rail with clickable thumbnails
 - Netflix-like watchlist rows
+- Motion carousel row transitions
 - Media cards with poster, title, type, and status
 - Statuses: `Planned`, `Watching`, `Watched`, `Dropped`
 - Automatic migration from old `Completed` status to `Watched`
 - Details modal for saved items
+- Motion details modal animation
 - Edit status from the details modal
 - Remove saved item
 - Search button that expands into a nav search bar
 - Mock search result dropdown
+- Motion search morph and result transitions
 - Search preview/create modal
 - Keyboard navigation for search results
 - Duplicate prevention and duplicate cleanup on load
 - Mobile layering fixes for search and details modal
-- Mobile performance pass for expensive blur/filter/layout animation work
+- Mobile performance pass for expensive blur/filter work while keeping Motion animations active
 
 ## Roadmap
 
@@ -49,6 +53,7 @@ Implemented so far:
 - Remove item ✅
 - Save data with localStorage ✅
 - Duplicate prevention ✅
+- Motion animations for hero, rows, search, and modals ✅
 - Mobile layout and performance stabilization ✅
 
 ### Phase 2 — Real API Search/Add Flow
@@ -80,7 +85,7 @@ Implemented so far:
 - TypeScript
 - Vite
 - CSS
-- Motion
+- Motion / `motion/react`
 - Git and GitHub
 
 ## Project Structure
