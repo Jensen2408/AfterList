@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Anime', to: '/anime' },
   { label: 'Movies', to: '/movies' },
   { label: 'TV Series', to: '/series' },
+  { label: 'Sign in', to: '/login' },
 ]
 
 function ActiveNavBackground() {
