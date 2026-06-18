@@ -78,11 +78,13 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
     let nextOffset = 0
 
     if (direction === 'right') {
+      const isAlreadyAtEnd = currentOffset >= maxOffset - 1
       const candidateOffset = currentOffset + pageAmount
-      nextOffset = candidateOffset >= maxOffset - 1 ? 0 : clamp(candidateOffset, 0, maxOffset)
+      nextOffset = isAlreadyAtEnd ? 0 : clamp(candidateOffset, 0, maxOffset)
     } else {
+      const isAlreadyAtStart = currentOffset <= 1
       const candidateOffset = currentOffset - pageAmount
-      nextOffset = candidateOffset <= 1 ? maxOffset : clamp(candidateOffset, 0, maxOffset)
+      nextOffset = isAlreadyAtStart ? maxOffset : clamp(candidateOffset, 0, maxOffset)
     }
 
     viewport.scrollTo({ left: nextOffset, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
