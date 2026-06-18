@@ -2,6 +2,8 @@ export type MediaType = 'Anime' | 'Movie' | 'TV Series'
 
 export type MediaStatus = 'Planned' | 'Watching' | 'Watched' | 'Dropped'
 
+export type MediaSource = 'demo' | 'mock-api' | 'tmdb' | 'anilist'
+
 export type MediaItem = {
   id: string
   title: string
@@ -12,4 +14,7 @@ export type MediaItem = {
   progress: string
   rating: string
   description: string
+  year?: string
+  source?: MediaSource
+  externalId?: string
 }
