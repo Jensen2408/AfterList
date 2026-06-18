@@ -3,6 +3,7 @@ import type { MediaType } from '../types/media'
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p'
+const TMDB_ANIMATION_GENRE_ID = 16
 
 const getTmdbApiKey = () => import.meta.env.VITE_TMDB_API_KEY?.trim()
 const getTmdbAccessToken = () => import.meta.env.VITE_TMDB_ACCESS_TOKEN?.trim()
@@ -24,6 +25,9 @@ type TmdbSearchResult = {
   backdrop_path?: string | null
   vote_average?: number
   overview?: string
+  genre_ids?: number[]
+  origin_country?: string[]
+  original_language?: string
 }
 
 type TmdbSearchResponse = {
@@ -40,6 +44,18 @@ function isMovieOrTvResult(result: TmdbSearchResult): result is TmdbSearchResult
 
 function getYear(date?: string) {
   return date?.slice(0, 4) || 'Unknown'
+}
+
+function isLikelyAnime(result: TmdbSearchResult) {
+  const isAnimation = result.genre_ids?.includes(TMDB_ANIMATION_GENRE_ID) ?? false
+  const isJapanese = result.original_language === 'ja' || result.origin_country?.includes('JP')
+
+  return isAnimation && isJapanese
+}
+
+function getMediaType(result: TmdbSearchResult & { media_type: TmdbMediaType }): MediaType {
+  if (isLikelyAnime(result)) return 'Anime'
+  return result.media_type === 'movie' ? 'Movie' : 'TV Series'
 }
 
 function escapeSvgText(value: string) {
@@ -84,7 +100,7 @@ function mapTmdbResult(result: TmdbSearchResult & { media_type: TmdbMediaType })
 
   if (!title) return null
 
-  const type: MediaType = isMovie ? 'Movie' : 'TV Series'
+  const type = getMediaType(result)
   const year = getYear(isMovie ? result.release_date : result.first_air_date)
   const rating = typeof result.vote_average === 'number' && result.vote_average > 0 ? result.vote_average.toFixed(1) : 'N/A'
 
