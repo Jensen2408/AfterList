@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
-import { animate } from 'motion'
-import { motion, useAnimationFrame, useMotionValue, useReducedMotion } from 'motion/react'
+import { motion, useAnimationFrame, useReducedMotion } from 'motion/react'
 import MediaCard from './MediaCard'
 import type { MediaItem } from '../types/media'
 
@@ -15,7 +14,7 @@ type WatchlistRowProps = {
 const SLIDE_EASE = [0.22, 1, 0.36, 1] as const
 const INFINITE_CARD_COPIES = 5
 const INFINITE_CENTER_COPY = 2
-const INFINITE_SPEED = 0.018
+const INFINITE_SPEED = 0.035
 const ROW_GAP = 16
 
 function clamp(value: number, min: number, max: number) {
@@ -25,10 +24,8 @@ function clamp(value: number, min: number, max: number) {
 export default function WatchlistRow({ title, items, onSelect, hideControls = false }: WatchlistRowProps) {
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
-  const arrowAnimationRef = useRef<{ stop: () => void } | null>(null)
-  const isManualSlidingRef = useRef(false)
+  const wrapTimeoutRef = useRef<number | null>(null)
   const prefersReducedMotion = useReducedMotion()
-  const infiniteX = useMotionValue(0)
   const [offset, setOffset] = useState(0)
   const [maxOffset, setMaxOffset] = useState(0)
   const [singleSetWidth, setSingleSetWidth] = useState(0)
@@ -41,37 +38,37 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
     [],
   )
 
-  const getCenterStart = useCallback(
-    (setWidth = singleSetWidth) => -setWidth * INFINITE_CENTER_COPY,
-    [singleSetWidth],
-  )
+  const getCenterStart = useCallback((setWidth = singleSetWidth) => setWidth * INFINITE_CENTER_COPY, [singleSetWidth])
 
-  const wrapInfiniteX = useCallback(
-    (value: number) => {
-      if (!singleSetWidth) return value
+  const wrapInfiniteScroll = useCallback(
+    (setWidth = singleSetWidth) => {
+      const viewport = viewportRef.current
+      if (!viewport || !setWidth) return
 
-      let nextX = value
-      const minX = -singleSetWidth * (INFINITE_CENTER_COPY + 1)
-      const maxX = -singleSetWidth * (INFINITE_CENTER_COPY - 1)
+      const minScroll = setWidth * (INFINITE_CENTER_COPY - 1)
+      const maxScroll = setWidth * (INFINITE_CENTER_COPY + 1)
+      let nextScroll = viewport.scrollLeft
 
-      while (nextX <= minX) nextX += singleSetWidth
-      while (nextX >= maxX) nextX -= singleSetWidth
+      while (nextScroll <= minScroll) nextScroll += setWidth
+      while (nextScroll >= maxScroll) nextScroll -= setWidth
 
-      return nextX
+      if (Math.abs(nextScroll - viewport.scrollLeft) > 0.5) {
+        viewport.scrollLeft = nextScroll
+      }
     },
     [singleSetWidth],
   )
 
-  const normalizeInfiniteX = useCallback(() => {
-    if (!singleSetWidth) return
-
-    const currentX = infiniteX.get()
-    const nextX = wrapInfiniteX(currentX)
-
-    if (nextX !== currentX) {
-      infiniteX.set(nextX)
+  const queueInfiniteWrap = useCallback(() => {
+    if (wrapTimeoutRef.current) {
+      window.clearTimeout(wrapTimeoutRef.current)
     }
-  }, [infiniteX, singleSetWidth, wrapInfiniteX])
+
+    wrapTimeoutRef.current = window.setTimeout(() => {
+      wrapInfiniteScroll()
+      wrapTimeoutRef.current = null
+    }, 520)
+  }, [wrapInfiniteScroll])
 
   const updateMetrics = useCallback(() => {
     const viewport = viewportRef.current
@@ -82,16 +79,16 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
       const firstSet = track.querySelector<HTMLElement>('.row-scroll-set')
       const nextSetWidth = firstSet?.offsetWidth ?? 0
 
-      setSingleSetWidth(nextSetWidth)
-
       if (nextSetWidth > 0) {
-        const centerStart = getCenterStart(nextSetWidth)
-        const currentX = infiniteX.get()
+        setSingleSetWidth((currentWidth) => (Math.abs(currentWidth - nextSetWidth) > 1 ? nextSetWidth : currentWidth))
 
-        if (!currentX || Math.abs(currentX) < 1) {
-          infiniteX.set(centerStart)
+        const centerStart = nextSetWidth * INFINITE_CENTER_COPY
+        const widthChanged = Math.abs(singleSetWidth - nextSetWidth) > 1
+
+        if (viewport.scrollLeft < 1 || widthChanged) {
+          viewport.scrollLeft = centerStart
         } else {
-          infiniteX.set(wrapInfiniteX(currentX))
+          wrapInfiniteScroll(nextSetWidth)
         }
       }
 
@@ -103,7 +100,7 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
     const nextMaxOffset = Math.max(0, track.scrollWidth - viewport.clientWidth)
     setMaxOffset(nextMaxOffset)
     setOffset((currentOffset) => Math.min(currentOffset, nextMaxOffset))
-  }, [getCenterStart, infiniteX, isInfiniteRow, wrapInfiniteX])
+  }, [isInfiniteRow, singleSetWidth, wrapInfiniteScroll])
 
   useLayoutEffect(() => {
     updateMetrics()
@@ -120,13 +117,21 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
   }, [items.length, isInfiniteRow, updateMetrics])
 
   useEffect(() => {
-    return () => arrowAnimationRef.current?.stop()
+    return () => {
+      if (wrapTimeoutRef.current) {
+        window.clearTimeout(wrapTimeoutRef.current)
+      }
+    }
   }, [])
 
   useAnimationFrame((_, delta) => {
-    if (!isInfiniteRow || prefersReducedMotion || isPaused || isManualSlidingRef.current || !singleSetWidth) return
+    if (!isInfiniteRow || prefersReducedMotion || isPaused || !singleSetWidth) return
 
-    infiniteX.set(wrapInfiniteX(infiniteX.get() - delta * INFINITE_SPEED))
+    const viewport = viewportRef.current
+    if (!viewport) return
+
+    viewport.scrollLeft += delta * INFINITE_SPEED
+    wrapInfiniteScroll()
   })
 
   if (items.length === 0) return null
@@ -141,36 +146,22 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
   }
 
   const slideRow = (direction: 'left' | 'right') => {
-    if (isInfiniteRow) {
-      if (!singleSetWidth) {
-        updateMetrics()
-      }
-
-      const currentX = wrapInfiniteX(infiniteX.get() || getCenterStart())
-      const slideAmount = getSlideAmount()
-      const targetX = direction === 'left' ? currentX + slideAmount : currentX - slideAmount
-
-      arrowAnimationRef.current?.stop()
-      isManualSlidingRef.current = true
-      infiniteX.set(currentX)
-
-      arrowAnimationRef.current = animate(infiniteX, targetX, {
-        type: 'spring',
-        stiffness: 320,
-        damping: 34,
-        mass: 0.85,
-        restDelta: 0.5,
-        restSpeed: 2,
-        onComplete: () => {
-          normalizeInfiniteX()
-          isManualSlidingRef.current = false
-        },
-      })
-
-      return
-    }
+    const viewport = viewportRef.current
+    if (!viewport) return
 
     const slideAmount = getSlideAmount()
+
+    if (isInfiniteRow) {
+      if (!singleSetWidth) updateMetrics()
+
+      viewport.scrollBy({
+        left: direction === 'left' ? -slideAmount : slideAmount,
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      })
+
+      queueInfiniteWrap()
+      return
+    }
 
     setOffset((currentOffset) => {
       const nextOffset = direction === 'left' ? currentOffset - slideAmount : currentOffset + slideAmount
@@ -221,24 +212,15 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
           </button>
         )}
 
-        <div className="row-scroll" ref={viewportRef}>
+        <div className="row-scroll" ref={viewportRef} onScroll={isInfiniteRow ? () => wrapInfiniteScroll() : undefined}>
           {isInfiniteRow ? (
-            <motion.div
-              className="row-scroll-track row-scroll-track-infinite"
-              ref={trackRef}
-              aria-label={`${title} circular list`}
-              style={{ x: infiniteX }}
-            >
+            <div className="row-scroll-track row-scroll-track-infinite" ref={trackRef} aria-label={`${title} circular list`}>
               {repeatedSets.map((copyIndex) => (
-                <div
-                  className="row-scroll-set"
-                  aria-hidden={copyIndex !== INFINITE_CENTER_COPY}
-                  key={`loop-set-${copyIndex}`}
-                >
+                <div className="row-scroll-set" aria-hidden={copyIndex !== INFINITE_CENTER_COPY} key={`loop-set-${copyIndex}`}>
                   {renderCards(`loop-${copyIndex}`)}
                 </div>
               ))}
-            </motion.div>
+            </div>
           ) : (
             <motion.div
               className="row-scroll-track"
