@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { demoItems as initialItems } from '../data/demoItems'
-import type { MediaItem } from '../types/media'
+import type { MediaItem, MediaStatus } from '../types/media'
 
 export function useWatchlist() {
   const [items, setItems] = useState<MediaItem[]>(() => {
@@ -17,8 +17,15 @@ export function useWatchlist() {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id))
   }
 
+  const handleUpdateStatus = (id: string, status: MediaStatus) => {
+    setItems((prevItems) =>
+      prevItems.map((item) => (item.id === id ? { ...item, status } : item)),
+    )
+  }
+
   return {
     items,
     handleRemoveItem,
+    handleUpdateStatus,
   }
 }
