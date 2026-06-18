@@ -1,11 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'motion/react'
 import { searchCatalog } from '../data/searchCatalog'
 import type { SearchCatalogItem } from '../data/searchCatalog'
 import type { MediaItem, MediaStatus } from '../types/media'
 
 const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Watched', 'Dropped']
 const modalEase = [0.22, 1, 0.36, 1] as const
+const exitEase = [0.4, 0, 1, 1] as const
+
+const springTransition = {
+  type: 'spring',
+  stiffness: 480,
+  damping: 42,
+  mass: 0.82,
+} as const
+
+const fastSpringTransition = {
+  type: 'spring',
+  stiffness: 620,
+  damping: 44,
+  mass: 0.72,
+} as const
+
+const reducedTransition = { duration: 0.01 } as const
 
 type SearchAddModalProps = {
   onCreate: (item: MediaItem) => void
@@ -33,6 +50,7 @@ function createMediaItem(result: SearchCatalogItem, status: MediaStatus): MediaI
 }
 
 function SearchAddModal({ onCreate }: SearchAddModalProps) {
+  const shouldReduceMotion = useReducedMotion()
   const [isExpanded, setIsExpanded] = useState(false)
   const [query, setQuery] = useState('')
   const [selectedResult, setSelectedResult] = useState<SearchCatalogItem | null>(null)
@@ -41,6 +59,9 @@ function SearchAddModal({ onCreate }: SearchAddModalProps) {
   const inputRef = useRef<HTMLInputElement | null>(null)
 
   const normalizedQuery = query.trim().toLowerCase()
+  const sharedTransition = shouldReduceMotion ? reducedTransition : springTransition
+  const itemTransition = shouldReduceMotion ? reducedTransition : fastSpringTransition
+  const panelTransition = shouldReduceMotion ? reducedTransition : { duration: 0.2, ease: modalEase }
 
   const results = useMemo(() => {
     if (!normalizedQuery) return []
@@ -56,9 +77,9 @@ function SearchAddModal({ onCreate }: SearchAddModalProps) {
   useEffect(() => {
     if (!isExpanded) return
 
-    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), 80)
+    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), shouldReduceMotion ? 0 : 80)
     return () => window.clearTimeout(focusTimer)
-  }, [isExpanded])
+  }, [isExpanded, shouldReduceMotion])
 
   useEffect(() => {
     if (!isExpanded) return
@@ -129,153 +150,198 @@ function SearchAddModal({ onCreate }: SearchAddModalProps) {
   }
 
   return (
-    <div className={`nav-search-shell${isExpanded ? ' expanded' : ''}`}>
-      <AnimatePresence mode="wait" initial={false}>
-        {!isExpanded ? (
-          <motion.button
-            key="search-button"
-            className="nav-search-button"
-            type="button"
-            layoutId="nav-search-control"
-            onClick={openSearch}
-            initial={{ opacity: 0.72, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-          >
-            Search
-          </motion.button>
-        ) : (
-          <motion.div
-            key="search-bar"
-            className="nav-search-bar"
-            layoutId="nav-search-control"
-            initial={{ opacity: 0.7, width: 112 }}
-            animate={{ opacity: 1, width: 'min(430px, 44vw)' }}
-            exit={{ opacity: 0, width: 112 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-          >
-            <span className="nav-search-icon" aria-hidden="true">⌕</span>
-            <input
-              ref={inputRef}
-              value={query}
-              aria-label="Search movies, TV series, and anime"
-              placeholder="Search to add..."
-              onFocus={() => setHighlightedIndex(results.length > 0 ? 0 : -1)}
-              onKeyDown={handleInputKeyDown}
-              onChange={(event) => {
-                setQuery(event.target.value)
-                setSelectedResult(null)
-              }}
-            />
-            <button className="nav-search-clear" type="button" aria-label="Close search" onClick={closeSearch}>
-              ✕
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            className="nav-search-results-popover"
-            initial={{ opacity: 0, y: -10, scale: 0.965, filter: 'blur(8px)' }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -10, scale: 0.965, filter: 'blur(8px)' }}
-            transition={{ duration: 0.22, ease: modalEase }}
-          >
-            {!normalizedQuery && (
-              <div className="nav-search-empty">
-                <strong>Search to add</strong>
-                <span>Try “Dune” to open results below.</span>
-              </div>
-            )}
-
-            {normalizedQuery && results.length === 0 && (
-              <div className="nav-search-empty">
-                <strong>No results found</strong>
-                <span>This still uses the mock catalog until the API is connected.</span>
-              </div>
-            )}
-
-            {results.map((result, index) => (
-              <motion.button
-                key={`${result.source}-${result.externalId}`}
-                className={`nav-search-result${index === 0 ? ' is-top-result' : ''}${index === highlightedIndex ? ' is-selected' : ''}`}
-                type="button"
-                onMouseEnter={() => setHighlightedIndex(index)}
-                onClick={() => handleSelectResult(result)}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.025, duration: 0.2, ease: modalEase }}
-              >
-                <img src={result.poster} alt="" loading="lazy" />
-                <span>
-                  <strong>{result.title}</strong>
-                  <small>{result.type} • {result.year} • ★ {result.rating}</small>
-                </span>
-              </motion.button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {selectedResult && (
-          <div className="modal-backdrop search-result-backdrop" onClick={() => setSelectedResult(null)}>
-            <motion.section
-              className="search-result-detail-modal"
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Add ${selectedResult.title}`}
-              initial={{ opacity: 0, y: 22, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 14, scale: 0.98 }}
-              transition={{ duration: 0.28, ease: modalEase }}
-              onClick={(event) => event.stopPropagation()}
+    <LayoutGroup id="search-add-flow">
+      <div className={`nav-search-shell${isExpanded ? ' expanded' : ''}`}>
+        <AnimatePresence mode="wait" initial={false}>
+          {!isExpanded ? (
+            <motion.button
+              key="search-button"
+              className="nav-search-button"
+              type="button"
+              layoutId="nav-search-control"
+              onClick={openSearch}
+              initial={shouldReduceMotion ? false : { opacity: 0.76, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
+              transition={sharedTransition}
             >
-              <button className="modal-close" type="button" aria-label="Close preview" onClick={() => setSelectedResult(null)}>
+              Search
+            </motion.button>
+          ) : (
+            <motion.div
+              key="search-bar"
+              className="nav-search-bar"
+              layoutId="nav-search-control"
+              initial={shouldReduceMotion ? false : { opacity: 0.82, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
+              transition={sharedTransition}
+            >
+              <span className="nav-search-icon" aria-hidden="true">⌕</span>
+              <input
+                ref={inputRef}
+                value={query}
+                aria-label="Search movies, TV series, and anime"
+                placeholder="Search to add..."
+                onFocus={() => setHighlightedIndex(results.length > 0 ? 0 : -1)}
+                onKeyDown={handleInputKeyDown}
+                onChange={(event) => {
+                  setQuery(event.target.value)
+                  setSelectedResult(null)
+                }}
+              />
+              <button className="nav-search-clear" type="button" aria-label="Close search" onClick={closeSearch}>
                 ✕
               </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              <img className="search-detail-backdrop" src={selectedResult.backdrop} alt="" />
-              <div className="search-detail-body">
-                <img className="search-detail-poster" src={selectedResult.poster} alt={selectedResult.title} />
-                <div>
-                  <p className="eyebrow">Preview result</p>
-                  <h3>{selectedResult.title}</h3>
-                  <div className="hero-meta search-detail-meta">
-                    <span>{selectedResult.type}</span>
-                    <span>{selectedResult.year}</span>
-                    <span>★ {selectedResult.rating}</span>
-                  </div>
-                  <p>{selectedResult.description}</p>
+        <AnimatePresence initial={false}>
+          {isExpanded && (
+            <motion.div
+              className="nav-search-results-popover"
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.988 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.988 }}
+              transition={panelTransition}
+            >
+              {!normalizedQuery && (
+                <motion.div
+                  className="nav-search-empty"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={panelTransition}
+                >
+                  <strong>Search to add</strong>
+                  <span>Try “Dune” to open results below.</span>
+                </motion.div>
+              )}
 
-                  <label className="status-editor create-status-editor">
-                    <span>Status</span>
-                    <select
-                      value={selectedStatus}
-                      aria-label={`Choose status for ${selectedResult.title}`}
-                      onChange={(event) => setSelectedStatus(event.target.value as MediaStatus)}
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+              {normalizedQuery && results.length === 0 && (
+                <motion.div
+                  className="nav-search-empty"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={panelTransition}
+                >
+                  <strong>No results found</strong>
+                  <span>This still uses the mock catalog until the API is connected.</span>
+                </motion.div>
+              )}
 
-                  <button className="create-item-btn" type="button" onClick={handleCreate}>
-                    Create
-                  </button>
+              {results.map((result, index) => {
+                const isSelected = index === highlightedIndex
+
+                return (
+                  <motion.button
+                    layout
+                    key={`${result.source}-${result.externalId}`}
+                    className={`nav-search-result${index === 0 ? ' is-top-result' : ''}${isSelected ? ' is-selected' : ''}`}
+                    type="button"
+                    onFocus={() => setHighlightedIndex(index)}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                    onClick={() => handleSelectResult(result)}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 6, scale: 0.992 }}
+                    animate={{ opacity: 1, y: 0, scale: isSelected ? 1.01 : 1 }}
+                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.992 }}
+                    whileHover={shouldReduceMotion ? undefined : { y: -1, scale: isSelected ? 1.012 : 1.006 }}
+                    transition={itemTransition}
+                  >
+                    <img src={result.poster} alt="" loading="lazy" />
+                    <span>
+                      <strong>{result.title}</strong>
+                      <small>{result.type} • {result.year} • ★ {result.rating}</small>
+                    </span>
+                  </motion.button>
+                )
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence initial={false}>
+          {selectedResult && (
+            <motion.div
+              className="modal-backdrop search-result-backdrop"
+              onClick={() => setSelectedResult(null)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={shouldReduceMotion ? reducedTransition : { duration: 0.18, ease: modalEase }}
+            >
+              <motion.section
+                className="search-result-detail-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-label={`Add ${selectedResult.title}`}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.985 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.985 }}
+                transition={shouldReduceMotion ? reducedTransition : { duration: 0.24, ease: modalEase }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <button className="modal-close" type="button" aria-label="Close preview" onClick={() => setSelectedResult(null)}>
+                  ✕
+                </button>
+
+                <motion.img
+                  className="search-detail-backdrop"
+                  src={selectedResult.backdrop}
+                  alt=""
+                  initial={shouldReduceMotion ? false : { scale: 1.04, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={shouldReduceMotion ? reducedTransition : { duration: 0.34, ease: modalEase }}
+                />
+                <div className="search-detail-body">
+                  <motion.img
+                    className="search-detail-poster"
+                    src={selectedResult.poster}
+                    alt={selectedResult.title}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 14, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={shouldReduceMotion ? reducedTransition : { duration: 0.26, ease: modalEase }}
+                  />
+                  <motion.div
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={shouldReduceMotion ? reducedTransition : { duration: 0.24, ease: modalEase, delay: 0.04 }}
+                  >
+                    <p className="eyebrow">Preview result</p>
+                    <h3>{selectedResult.title}</h3>
+                    <div className="hero-meta search-detail-meta">
+                      <span>{selectedResult.type}</span>
+                      <span>{selectedResult.year}</span>
+                      <span>★ {selectedResult.rating}</span>
+                    </div>
+                    <p>{selectedResult.description}</p>
+
+                    <label className="status-editor create-status-editor">
+                      <span>Status</span>
+                      <select
+                        value={selectedStatus}
+                        aria-label={`Choose status for ${selectedResult.title}`}
+                        onChange={(event) => setSelectedStatus(event.target.value as MediaStatus)}
+                      >
+                        {statusOptions.map((status) => (
+                          <option key={status} value={status}>
+                            {status}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <button className="create-item-btn" type="button" onClick={handleCreate}>
+                      Create
+                    </button>
+                  </motion.div>
                 </div>
-              </div>
-            </motion.section>
-          </div>
-        )}
-      </AnimatePresence>
-    </div>
+              </motion.section>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </LayoutGroup>
   )
 }
 
