@@ -4,12 +4,19 @@
    overlays, full-image filters, and masked repaint layers. */
 
 /* Shared carousel track fix.
-   Desktop arrows animate this track with Motion x-offset. Mobile keeps native swipe
-   scrolling through the .row-scroll-native overrides below. */
+   Desktop arrows move the real row viewport. Mobile keeps native swipe scrolling
+   through the .row-scroll-native overrides below. */
 .row-scroll {
-  overflow-x: hidden !important;
+  overflow-x: auto !important;
   overflow-y: visible !important;
-  scroll-snap-type: none !important;
+  scroll-snap-type: x proximity !important;
+  scroll-behavior: smooth !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.row-scroll::-webkit-scrollbar {
+  display: none !important;
 }
 
 .row-scroll-track {
@@ -18,7 +25,6 @@
   min-width: 100% !important;
   align-items: stretch !important;
   gap: 16px !important;
-  will-change: transform;
 }
 
 @media (max-width: 700px) {
@@ -148,7 +154,7 @@
     opacity: 0.34 !important;
   }
 
-  /* Mobile rows should use native swipe scrolling. The desktop arrows still use Motion x-offset. */
+  /* Mobile rows should use native swipe scrolling. */
   .row-scroll-native {
     overflow-x: auto !important;
     overflow-y: hidden !important;
