@@ -19,6 +19,7 @@ const watchRows: { title: string; status: MediaStatus }[] = [
 ]
 
 const HERO_ROTATION_MS = 30_000
+const HERO_PREVIEW_LIMIT = 5
 
 function getNextHeroIndex(currentIndex: number, itemCount: number) {
   if (itemCount <= 1) return 0
@@ -27,11 +28,28 @@ function getNextHeroIndex(currentIndex: number, itemCount: number) {
   return (currentIndex + offset) % itemCount
 }
 
+function getHeroPreviewItems(items: MediaItem[], currentIndex: number) {
+  if (!items.length) return []
+
+  const previewCount = Math.min(items.length, HERO_PREVIEW_LIMIT)
+
+  return Array.from({ length: previewCount }, (_, step) => {
+    const index = (currentIndex + step) % items.length
+
+    return {
+      item: items[index],
+      index,
+      isActive: step === 0,
+    }
+  })
+}
+
 function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const [heroIndex, setHeroIndex] = useState(0)
   const safeHeroIndex = items.length ? heroIndex % items.length : 0
   const hero = items[safeHeroIndex]
+  const heroPreviewItems = getHeroPreviewItems(items, safeHeroIndex)
   const isDetailsModalOpen = Boolean(selectedItem)
 
   useEffect(() => {
@@ -63,7 +81,7 @@ function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
       <AnimatePresence mode="wait">
         {hero && (
           <motion.section
-            key={hero.id}
+            key={`${hero.id}-${safeHeroIndex}`}
             className="hero-card glass-panel"
             style={{ '--hero-image': `url(${hero.backdrop})` } as CSSProperties}
             initial={{ opacity: 0, y: 18, scale: 0.985 }}
@@ -86,6 +104,24 @@ function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
                 <span>★ {hero.rating}</span>
               </div>
             </div>
+
+            {heroPreviewItems.length > 1 && (
+              <div className="hero-preview-rail" aria-label="Upcoming hero previews">
+                {heroPreviewItems.map(({ item, index, isActive }, position) => (
+                  <motion.button
+                    key={`${item.id}-${index}-${position}`}
+                    type="button"
+                    className={`hero-preview-thumb${isActive ? ' is-active' : ''}`}
+                    aria-label={`Show ${item.title} in hero`}
+                    onClick={() => setHeroIndex(index)}
+                    whileHover={{ y: -3, scale: isActive ? 1.02 : 1.06 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    <img src={item.poster} alt="" loading="lazy" />
+                  </motion.button>
+                ))}
+              </div>
+            )}
           </motion.section>
         )}
       </AnimatePresence>
