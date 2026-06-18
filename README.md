@@ -9,12 +9,12 @@ The goal is to build a clean Apple TV / Netflix-inspired watchlist while learnin
 - Track anime, movies, and TV series
 - Keep the design dark, cinematic, glassy, and polished
 - Learn React and TypeScript from the ground up
-- Build local-first, then add real APIs, accounts, sync, and sharing
+- Use real API search results instead of local mock catalogs
 - Keep the codebase organized enough to grow without becoming messy
 
 ## Current Status
 
-Phase 1 is complete and Phase 2 has started. The app saves to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and now supports TMDB-powered movie/TV search when a TMDB env key is configured.
+Phase 1 is complete and Phase 2 has started. The app saves API-backed items to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and now uses TMDB-powered search when a TMDB env key is configured.
 
 Implemented so far:
 
@@ -32,8 +32,8 @@ Implemented so far:
 - Remove saved item
 - Search button that expands into a nav search bar
 - TMDB movie/TV search when configured
-- Local mock fallback when TMDB is missing or unavailable
-- Mock anime search until an anime API is added
+- Conservative TMDB anime detection for Japanese animation results
+- No local demo/search fallback data
 - Motion search morph and result transitions
 - Search preview/create modal
 - Keyboard navigation for search results
@@ -47,7 +47,6 @@ Implemented so far:
 
 - Basic homepage ✅
 - Media cards ✅
-- Demo anime/movie/TV data ✅
 - Type filters ✅
 - Status filters ✅
 - Edit status ✅
@@ -62,6 +61,7 @@ Implemented so far:
 
 - Connect TMDB for movies and TV series ✅
 - Replace mock movie/TV search results with API results ✅
+- Remove local search/demo fallback data ✅
 - Add loading and error states ✅
 - Map TMDB results into the app `MediaItem` structure ✅
 - Prevent duplicates using API IDs/source IDs ✅
@@ -123,7 +123,6 @@ src/
 │  ├─ layout/       # App shell pieces like nav and footer
 │  ├─ media/        # Media cards, rows, and saved-item details modal
 │  └─ search/       # Search bar, result dropdown, and preview/create flow
-├─ data/            # Temporary demo data and mock anime/search fallback catalog
 ├─ hooks/           # Reusable React hooks
 ├─ pages/           # Route pages for home/anime/movies/series
 ├─ services/        # API services such as TMDB search
