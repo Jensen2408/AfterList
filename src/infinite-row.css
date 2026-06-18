@@ -1,6 +1,6 @@
 /* Seamless infinite carousel for the Watched row.
-   The track is two identical card sets; translating to -50% lands exactly
-   on the second copy so the loop resets without a visible jump. */
+   The track is two identical card sets; Motion translates to -50% so the
+   second copy lines up with the first copy without a visible reset jump. */
 
 .row-scroll-shell.is-infinite .row-scroll {
   overflow: hidden !important;
@@ -24,16 +24,9 @@
   display: flex !important;
   width: max-content !important;
   gap: 0 !important;
-  animation: afterlistInfiniteSlide 34s linear infinite;
+  animation: none !important;
   transform: translate3d(0, 0, 0);
-}
-
-.row-scroll-track-infinite.loop-left {
-  animation-name: afterlistInfiniteSlideReverse;
-}
-
-.row-scroll-track-infinite.loop-right {
-  animation-name: afterlistInfiniteSlide;
+  will-change: transform;
 }
 
 .row-scroll-shell.is-infinite:hover .row-scroll-track-infinite {
@@ -59,29 +52,9 @@
   padding-right: 16px;
 }
 
-@keyframes afterlistInfiniteSlide {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@keyframes afterlistInfiniteSlideReverse {
-  from {
-    transform: translate3d(-50%, 0, 0);
-  }
-
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .row-scroll-track-infinite {
-    animation: none !important;
+    transform: translate3d(0, 0, 0) !important;
   }
 }
 
@@ -106,9 +79,5 @@
   .row-scroll-set {
     gap: 14px;
     padding-right: 14px;
-  }
-
-  .row-scroll-track-infinite {
-    animation-duration: 26s;
   }
 }
