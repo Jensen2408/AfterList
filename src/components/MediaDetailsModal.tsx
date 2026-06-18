@@ -1,6 +1,6 @@
 import type { MediaItem, MediaStatus } from '../types/media'
 
-const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Completed', 'Dropped']
+const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Watched', 'Dropped']
 
 type MediaDetailsModalProps = {
   item: MediaItem
