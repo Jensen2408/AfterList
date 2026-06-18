@@ -2,12 +2,31 @@ import { useState, useEffect } from 'react'
 import { demoItems as initialItems } from '../data/demoItems'
 import type { MediaItem, MediaStatus } from '../types/media'
 
-export function useWatchlist() {
-  const [items, setItems] = useState<MediaItem[]>(() => {
-    const savedItems = localStorage.getItem('afterlist_items')
+type LegacyMediaItem = Omit<MediaItem, 'status'> & {
+  status: MediaStatus | 'Completed'
+}
 
-    return savedItems ? (JSON.parse(savedItems) as MediaItem[]) : initialItems
-  })
+function migrateStatus(item: LegacyMediaItem): MediaItem {
+  return {
+    ...item,
+    status: item.status === 'Completed' ? 'Watched' : item.status,
+  }
+}
+
+function loadSavedItems(): MediaItem[] {
+  const savedItems = localStorage.getItem('afterlist_items')
+
+  if (!savedItems) return initialItems
+
+  try {
+    return (JSON.parse(savedItems) as LegacyMediaItem[]).map(migrateStatus)
+  } catch {
+    return initialItems
+  }
+}
+
+export function useWatchlist() {
+  const [items, setItems] = useState<MediaItem[]>(loadSavedItems)
 
   useEffect(() => {
     localStorage.setItem('afterlist_items', JSON.stringify(items))
