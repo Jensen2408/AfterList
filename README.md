@@ -28,12 +28,13 @@ The project is being built from scratch to understand every part of the codebase
 - Type filters ✅
 - Status filters ✅
 - Edit Status ✅
-- Search
-- Remove item
+- Search / Create modal flow ✅
+- Remove item ✅
 - Save data with localStorage ✅
 
 ### Phase 2 — API Search
 
+- Replace mock search catalog with real API results
 - AniList search for anime
 - TMDB search for movies and TV series
 - Add item from API search results
