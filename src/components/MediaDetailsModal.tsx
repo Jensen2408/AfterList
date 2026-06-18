@@ -1,12 +1,15 @@
-import type { MediaItem } from '../types/media'
+import type { MediaItem, MediaStatus } from '../types/media'
+
+const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Completed', 'Dropped']
 
 type MediaDetailsModalProps = {
   item: MediaItem
   onClose: () => void
   onRemove: (id: string) => void
+  onStatusChange: (id: string, status: MediaStatus) => void
 }
 
-function MediaDetailsModal({ item, onClose, onRemove }: MediaDetailsModalProps) {
+function MediaDetailsModal({ item, onClose, onRemove, onStatusChange }: MediaDetailsModalProps) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <section
@@ -33,8 +36,22 @@ function MediaDetailsModal({ item, onClose, onRemove }: MediaDetailsModalProps) 
             <span>★ {item.rating}</span>
           </div>
 
-          {/* Delete Action Button */}
-          <div className="modal-footer" style={{ marginTop: '2rem' }}>
+          <label className="status-editor">
+            <span>Edit status</span>
+            <select
+              value={item.status}
+              aria-label={`Edit status for ${item.title}`}
+              onChange={(event) => onStatusChange(item.id, event.target.value as MediaStatus)}
+            >
+              {statusOptions.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className="modal-footer">
             <button
               className="delete-btn"
               type="button"
