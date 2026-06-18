@@ -1,0 +1,70 @@
+.nav-search-shell,
+.nav-search-bar,
+.nav-search-button,
+.nav-search-results-popover,
+.nav-search-result,
+.search-result-detail-modal,
+.search-detail-poster,
+.search-detail-backdrop {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.nav-search-bar,
+.nav-search-results-popover,
+.search-result-detail-modal {
+  will-change: opacity, transform;
+}
+
+.nav-search-result {
+  will-change: opacity, transform;
+  transform-origin: center;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    color 0.18s ease;
+}
+
+.nav-search-result:hover,
+.nav-search-result.is-top-result:hover,
+.nav-search-result.is-selected {
+  transform: none;
+}
+
+.nav-search-result.is-selected {
+  border-color: rgba(255, 255, 255, 0.36);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.2), transparent 48%),
+    linear-gradient(135deg, rgba(70, 71, 78, 0.9), rgba(31, 32, 38, 0.94)),
+    rgba(37, 38, 44, 0.95);
+  box-shadow:
+    0 20px 52px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.32);
+}
+
+.nav-search-results-popover {
+  contain: layout paint;
+}
+
+.search-result-backdrop {
+  will-change: opacity;
+}
+
+.search-detail-body > div {
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-search-bar,
+  .nav-search-button,
+  .nav-search-results-popover,
+  .nav-search-result,
+  .search-result-detail-modal,
+  .search-detail-poster,
+  .search-detail-backdrop {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
