@@ -23,15 +23,15 @@ export default function Footer() {
         <div className="footer-col">
           <h3>RESOURCES</h3>
           <ul>
-            <li><a href="#">Placeholder 1</a></li>
-            <li><a href="#">Placeholder 2</a></li>
-            <li><a href="#">Placeholder 3</a></li>
+            <li><a href="https://www.themoviedb.org/" target="_blank" rel="noreferrer">TMDB</a></li>
+            <li><a href="https://github.com/Luckyy84/AfterList" target="_blank" rel="noreferrer">GitHub</a></li>
           </ul>
         </div>
 
         <div className="footer-col legal-col">
           <h3>LEGAL</h3>
           <p>AfterList uses third-party services to fetch anime, movie, and series info.</p>
+          <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
         </div>
 
         <div className="footer-col meta-col">
