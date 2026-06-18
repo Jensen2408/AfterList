@@ -4,6 +4,9 @@ import { useIsMobile } from '../../hooks/useMediaQuery'
 
 const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Watched', 'Dropped']
 const modalEase = [0.22, 1, 0.36, 1] as const
+const reducedTransition = { duration: 0.01 } as const
+const mobileModalTransition = { type: 'spring', stiffness: 430, damping: 34, mass: 0.72 } as const
+const desktopModalTransition = { type: 'spring', stiffness: 360, damping: 32, mass: 0.8 } as const
 
 type MediaDetailsModalProps = {
   item: MediaItem
@@ -18,11 +21,7 @@ function MediaDetailsModal({ item, onClose, onRemove, onStatusChange }: MediaDet
   const shouldSimplifyMotion = shouldReduceMotion
   const yearLabel = item.year ?? item.progress
 
-  const modalTransition = shouldReduceMotion
-    ? { duration: 0.01 }
-    : isMobile
-      ? { type: 'spring', stiffness: 430, damping: 34, mass: 0.72 }
-      : { type: 'spring', stiffness: 360, damping: 32, mass: 0.8 }
+  const modalTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobileModalTransition : desktopModalTransition
 
   return (
     <motion.div
@@ -30,7 +29,7 @@ function MediaDetailsModal({ item, onClose, onRemove, onStatusChange }: MediaDet
       onClick={onClose}
       initial={shouldReduceMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={shouldReduceMotion ? { duration: 0.01 } : { duration: 0.18, ease: modalEase }}
+      transition={shouldReduceMotion ? reducedTransition : { duration: 0.18, ease: modalEase }}
     >
       <motion.section
         className="details-modal details-result-modal"
