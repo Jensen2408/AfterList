@@ -118,7 +118,7 @@
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
 }
 
 .auth-google {
@@ -132,7 +132,7 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.auth-google:hover {
+.auth-google:hover:not(:disabled) {
   border-color: rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.11);
   box-shadow:
@@ -198,7 +198,7 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   font-size: 14px;
   font-weight: 720;
-  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
 .auth-field input:focus {
@@ -213,6 +213,13 @@
   color: rgba(255, 255, 255, 0.32);
 }
 
+.auth-google:disabled,
+.auth-submit:disabled,
+.auth-field input:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .auth-submit {
   border: 0;
   margin-top: 6px;
@@ -221,7 +228,7 @@
   box-shadow: 0 16px 44px rgba(255, 255, 255, 0.14);
 }
 
-.auth-submit:hover {
+.auth-submit:hover:not(:disabled) {
   transform: translateY(-1px);
   background: #fff;
   box-shadow: 0 20px 52px rgba(255, 255, 255, 0.2);
@@ -255,6 +262,43 @@
 
 .auth-switch a:hover {
   text-decoration: underline;
+}
+
+.nav-auth-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-user-pill,
+.nav-auth-action {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 820;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nav-user-pill {
+  max-width: 118px;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.06);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-auth-action {
+  color: rgba(255, 255, 255, 0.74);
+  background: transparent;
+  transition: 0.18s ease;
+}
+
+.nav-auth-action:hover {
+  color: #050505;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 @media (max-width: 900px) {
@@ -303,5 +347,10 @@
   .auth-divider {
     gap: 9px;
     font-size: 9px;
+  }
+
+  .nav-auth-menu {
+    width: 100%;
+    justify-content: center;
   }
 }
