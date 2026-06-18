@@ -32,6 +32,10 @@ export function useWatchlist() {
     localStorage.setItem('afterlist_items', JSON.stringify(items))
   }, [items])
 
+  const handleAddItem = (item: MediaItem) => {
+    setItems((prevItems) => [item, ...prevItems])
+  }
+
   const handleRemoveItem = (id: string) => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id))
   }
@@ -44,6 +48,7 @@ export function useWatchlist() {
 
   return {
     items,
+    handleAddItem,
     handleRemoveItem,
     handleUpdateStatus,
   }
