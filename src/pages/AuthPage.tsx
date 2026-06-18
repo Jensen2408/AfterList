@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
+import { useAuth } from '../context/AuthContext'
 
 type AuthPageProps = {
   mode: 'login' | 'signup'
@@ -9,17 +10,80 @@ type AuthPageProps = {
 
 const authEase = [0.22, 1, 0.36, 1] as const
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) return error.message
+  return 'Something went wrong. Please try again.'
+}
+
 export default function AuthPage({ mode }: AuthPageProps) {
+  const { isConfigured, isLoading, signIn, signUp, signInWithGoogle, user } = useAuth()
+  const navigate = useNavigate()
   const [notice, setNotice] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const isSignup = mode === 'signup'
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setNotice('Auth UI is ready. Supabase wiring comes next.')
+    setNotice('')
+
+    if (!isConfigured) {
+      setNotice('Supabase is not configured yet. Add your VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY values first.')
+      return
+    }
+
+    const formData = new FormData(event.currentTarget)
+    const email = String(formData.get('email') ?? '').trim()
+    const password = String(formData.get('password') ?? '')
+    const displayName = String(formData.get('displayName') ?? '').trim()
+    const confirmPassword = String(formData.get('confirmPassword') ?? '')
+
+    if (isSignup && password !== confirmPassword) {
+      setNotice('Passwords do not match.')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      if (isSignup) {
+        const session = await signUp(email, password, displayName)
+
+        if (session) {
+          navigate('/')
+        } else {
+          setNotice('Account created. Check your email to confirm your signup, then sign in.')
+        }
+      } else {
+        await signIn(email, password)
+        navigate('/')
+      }
+    } catch (error) {
+      setNotice(getErrorMessage(error))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleGoogleAuth = () => {
-    setNotice('Google auth button is ready. Supabase OAuth wiring comes next.')
+  const handleGoogleAuth = async () => {
+    setNotice('')
+
+    if (!isConfigured) {
+      setNotice('Supabase is not configured yet. Add your VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY values first.')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      setNotice(getErrorMessage(error))
+      setIsSubmitting(false)
+    }
+  }
+
+  if (!isLoading && user) {
+    return <Navigate to="/" replace />
   }
 
   return (
@@ -49,11 +113,11 @@ export default function AuthPage({ mode }: AuthPageProps) {
         <div className="auth-panel-head">
           <p className="eyebrow">{isSignup ? 'Sign up' : 'Sign in'}</p>
           <h2>{isSignup ? 'Start tracking everywhere.' : 'Continue your list.'}</h2>
-          <p>{isSignup ? 'Use Google or email and password for the first auth version.' : 'Use Google or the account you will connect with Supabase.'}</p>
+          <p>{isSignup ? 'Use Google or email and password to create your AfterList account.' : 'Use Google or your email and password to continue.'}</p>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <button className="auth-google" type="button" onClick={handleGoogleAuth}>
+          <button className="auth-google" type="button" onClick={handleGoogleAuth} disabled={isSubmitting}>
             <span className="auth-google-icon" aria-hidden="true">G</span>
             Continue with Google
           </button>
@@ -65,13 +129,13 @@ export default function AuthPage({ mode }: AuthPageProps) {
           {isSignup && (
             <label className="auth-field">
               <span>Display name</span>
-              <input name="displayName" type="text" placeholder="Luckyy" autoComplete="nickname" />
+              <input name="displayName" type="text" placeholder="Luckyy" autoComplete="nickname" disabled={isSubmitting} />
             </label>
           )}
 
           <label className="auth-field">
             <span>Email</span>
-            <input name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
+            <input name="email" type="email" placeholder="you@example.com" autoComplete="email" required disabled={isSubmitting} />
           </label>
 
           <label className="auth-field">
@@ -83,18 +147,19 @@ export default function AuthPage({ mode }: AuthPageProps) {
               autoComplete={isSignup ? 'new-password' : 'current-password'}
               minLength={6}
               required
+              disabled={isSubmitting}
             />
           </label>
 
           {isSignup && (
             <label className="auth-field">
               <span>Confirm password</span>
-              <input name="confirmPassword" type="password" placeholder="••••••••" autoComplete="new-password" minLength={6} required />
+              <input name="confirmPassword" type="password" placeholder="••••••••" autoComplete="new-password" minLength={6} required disabled={isSubmitting} />
             </label>
           )}
 
-          <button className="auth-submit" type="submit">
-            {isSignup ? 'Create account' : 'Sign in'}
+          <button className="auth-submit" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Working...' : isSignup ? 'Create account' : 'Sign in'}
           </button>
 
           {notice && <p className="auth-notice">{notice}</p>}
