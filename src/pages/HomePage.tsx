@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
-import { useState } from 'react'
-import { motion } from 'motion/react'
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import MediaDetailsModal from '../components/media/MediaDetailsModal'
 import WatchlistRow from '../components/media/MediaRow'
 import type { MediaItem, MediaStatus } from '../types/media'
@@ -18,10 +18,35 @@ const watchRows: { title: string; status: MediaStatus }[] = [
   { title: 'Dropped', status: 'Dropped' },
 ]
 
+const HERO_ROTATION_MS = 30_000
+
+function getNextHeroIndex(currentIndex: number, itemCount: number) {
+  if (itemCount <= 1) return 0
+
+  const offset = Math.floor(Math.random() * (itemCount - 1)) + 1
+  return (currentIndex + offset) % itemCount
+}
+
 function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
-  const hero = items[0]
+  const [heroIndex, setHeroIndex] = useState(0)
+  const safeHeroIndex = items.length ? heroIndex % items.length : 0
+  const hero = items[safeHeroIndex]
   const isDetailsModalOpen = Boolean(selectedItem)
+
+  useEffect(() => {
+    setHeroIndex((currentIndex) => (items.length ? currentIndex % items.length : 0))
+  }, [items.length])
+
+  useEffect(() => {
+    if (items.length <= 1) return undefined
+
+    const intervalId = window.setInterval(() => {
+      setHeroIndex((currentIndex) => getNextHeroIndex(currentIndex, items.length))
+    }, HERO_ROTATION_MS)
+
+    return () => window.clearInterval(intervalId)
+  }, [items.length])
 
   const handleRemove = (id: string) => {
     onRemove(id)
@@ -35,31 +60,35 @@ function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
 
   return (
     <>
-      {hero && (
-        <motion.section
-          className="hero-card glass-panel"
-          style={{ '--hero-image': `url(${hero.backdrop})` } as CSSProperties}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="hero-content">
-            <p className="eyebrow">Apple TV calm · Netflix grid</p>
-            <h1>AfterList</h1>
-            <p className="hero-title">{hero.title}</p>
-            <p className="hero-description">
-              A premium watchlist for anime, movies, and TV series — clean, personal, and not bloated.
-            </p>
+      <AnimatePresence mode="wait">
+        {hero && (
+          <motion.section
+            key={hero.id}
+            className="hero-card glass-panel"
+            style={{ '--hero-image': `url(${hero.backdrop})` } as CSSProperties}
+            initial={{ opacity: 0, y: 18, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 1.01 }}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="hero-content">
+              <p className="eyebrow">Apple TV calm · Netflix grid</p>
+              <h1>AfterList</h1>
+              <p className="hero-title">{hero.title}</p>
+              <p className="hero-description">
+                {hero.description || 'A premium watchlist for anime, movies, and TV series — clean, personal, and not bloated.'}
+              </p>
 
-            <div className="hero-meta">
-              <span className={`pill ${hero.status}`}>{hero.status}</span>
-              <span>{hero.type}</span>
-              <span>{hero.progress}</span>
-              <span>★ {hero.rating}</span>
+              <div className="hero-meta">
+                <span className={`pill ${hero.status}`}>{hero.status}</span>
+                <span>{hero.type}</span>
+                <span>{hero.year || hero.progress}</span>
+                <span>★ {hero.rating}</span>
+              </div>
             </div>
-          </div>
-        </motion.section>
-      )}
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       <section className="library-section">
         <div className="section-head library-head">
