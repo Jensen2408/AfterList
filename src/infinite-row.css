@@ -1,0 +1,84 @@
+/* Seamless infinite carousel for the Watched row.
+   The track is two identical card sets; translating to -50% lands exactly
+   on the second copy so the loop resets without a visible jump. */
+
+.row-scroll-shell.is-infinite .row-scroll {
+  overflow: hidden !important;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(8, 9, 13, 0) 0%,
+    rgba(8, 9, 13, 1) 15%,
+    rgba(8, 9, 13, 1) 85%,
+    rgba(8, 9, 13, 0) 100%
+  ) !important;
+  mask-image: linear-gradient(
+    to right,
+    rgba(8, 9, 13, 0) 0%,
+    rgba(8, 9, 13, 1) 15%,
+    rgba(8, 9, 13, 1) 85%,
+    rgba(8, 9, 13, 0) 100%
+  ) !important;
+}
+
+.row-scroll-track-infinite {
+  display: flex !important;
+  width: max-content !important;
+  gap: 0 !important;
+  animation: afterlistInfiniteSlide 34s linear infinite;
+  transform: translate3d(0, 0, 0);
+}
+
+.row-scroll-shell.is-infinite:hover .row-scroll-track-infinite {
+  animation-play-state: paused;
+}
+
+.row-scroll-set {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 16px;
+  padding-right: 16px;
+}
+
+@keyframes afterlistInfiniteSlide {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row-scroll-track-infinite {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .row-scroll-shell.is-infinite .row-scroll {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      rgba(8, 9, 13, 0) 0%,
+      rgba(8, 9, 13, 1) 18%,
+      rgba(8, 9, 13, 1) 82%,
+      rgba(8, 9, 13, 0) 100%
+    ) !important;
+    mask-image: linear-gradient(
+      to right,
+      rgba(8, 9, 13, 0) 0%,
+      rgba(8, 9, 13, 1) 18%,
+      rgba(8, 9, 13, 1) 82%,
+      rgba(8, 9, 13, 0) 100%
+    ) !important;
+  }
+
+  .row-scroll-set {
+    gap: 14px;
+    padding-right: 14px;
+  }
+
+  .row-scroll-track-infinite {
+    animation-duration: 26s;
+  }
+}
