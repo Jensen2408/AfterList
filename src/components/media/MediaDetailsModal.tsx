@@ -1,7 +1,9 @@
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import type { MediaItem, MediaStatus } from '../../types/media'
+import { useIsMobile } from '../../hooks/useMediaQuery'
 
 const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Watched', 'Dropped']
+const modalEase = [0.22, 1, 0.36, 1] as const
 
 type MediaDetailsModalProps = {
   item: MediaItem
@@ -11,6 +13,9 @@ type MediaDetailsModalProps = {
 }
 
 function MediaDetailsModal({ item, onClose, onRemove, onStatusChange }: MediaDetailsModalProps) {
+  const shouldReduceMotion = useReducedMotion()
+  const isMobile = useIsMobile()
+  const shouldSimplifyMotion = shouldReduceMotion || isMobile
   const yearLabel = item.year ?? item.progress
 
   return (
@@ -20,9 +25,15 @@ function MediaDetailsModal({ item, onClose, onRemove, onStatusChange }: MediaDet
         role="dialog"
         aria-modal="true"
         aria-label={item.title}
-        initial={{ opacity: 0, y: 18, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 360, damping: 32, mass: 0.8 }}
+        initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.97 }}
+        animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+        transition={
+          shouldReduceMotion
+            ? { duration: 0.01 }
+            : shouldSimplifyMotion
+              ? { duration: 0.16, ease: modalEase }
+              : { type: 'spring', stiffness: 360, damping: 32, mass: 0.8 }
+        }
         onClick={(e) => e.stopPropagation()}
       >
         <img className="details-modal-backdrop-art" src={item.backdrop || item.poster} alt="" aria-hidden="true" />
