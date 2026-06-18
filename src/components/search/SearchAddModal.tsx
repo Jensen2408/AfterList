@@ -5,6 +5,7 @@ import { searchCatalog } from '../../data/searchCatalog'
 import type { SearchCatalogItem } from '../../data/searchCatalog'
 import type { MediaItem, MediaStatus } from '../../types/media'
 import { findMatchingMediaItem } from '../../utils/media'
+import { isTmdbSearchConfigured, searchTmdb } from '../../services/tmdb'
 import { useIsMobile } from '../../hooks/useMediaQuery'
 
 const statusOptions: MediaStatus[] = ['Planned', 'Watching', 'Watched', 'Dropped']
@@ -74,12 +75,41 @@ function createMediaItem(result: SearchCatalogItem, status: MediaStatus): MediaI
   }
 }
 
+function getMockResults(normalizedQuery: string) {
+  if (!normalizedQuery) return []
+
+  return searchCatalog
+    .filter((item) => {
+      const searchableText = `${item.title} ${item.type} ${item.year}`.toLowerCase()
+      return searchableText.includes(normalizedQuery)
+    })
+    .slice(0, 8)
+}
+
+function mergeUniqueResults(results: SearchCatalogItem[]) {
+  const seen = new Set<string>()
+
+  return results.filter((result) => {
+    const key = result.source && result.externalId
+      ? `${result.source}-${result.externalId}`
+      : `${result.title}-${result.type}-${result.year}`
+
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps) {
   const shouldReduceMotion = useReducedMotion()
   const isMobile = useIsMobile()
   const shouldSimplifyMotion = shouldReduceMotion
+  const hasTmdbConfig = isTmdbSearchConfigured()
   const [isExpanded, setIsExpanded] = useState(false)
   const [query, setQuery] = useState('')
+  const [apiResults, setApiResults] = useState<SearchCatalogItem[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
   const [selectedResult, setSelectedResult] = useState<SearchCatalogItem | null>(null)
   const [selectedStatus, setSelectedStatus] = useState<MediaStatus>('Planned')
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
@@ -92,16 +122,61 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
   const panelTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobilePanelTransition : { duration: 0.2, ease: modalEase }
   const detailModalRoot = typeof document === 'undefined' ? null : document.body
 
+  const mockResults = useMemo(() => getMockResults(normalizedQuery), [normalizedQuery])
+
   const results = useMemo(() => {
     if (!normalizedQuery) return []
 
-    return searchCatalog
-      .filter((item) => {
-        const searchableText = `${item.title} ${item.type} ${item.year}`.toLowerCase()
-        return searchableText.includes(normalizedQuery)
-      })
-      .slice(0, 8)
-  }, [normalizedQuery])
+    if (hasTmdbConfig && !searchError) {
+      const animeFallbackResults = mockResults.filter((item) => item.type === 'Anime')
+      return mergeUniqueResults([...apiResults, ...animeFallbackResults]).slice(0, 8)
+    }
+
+    return mockResults
+  }, [apiResults, hasTmdbConfig, mockResults, normalizedQuery, searchError])
+
+  useEffect(() => {
+    if (!isExpanded || !normalizedQuery) {
+      setApiResults([])
+      setIsSearching(false)
+      setSearchError(null)
+      return
+    }
+
+    if (!hasTmdbConfig) {
+      setApiResults([])
+      setIsSearching(false)
+      setSearchError(null)
+      return
+    }
+
+    const controller = new AbortController()
+    setApiResults([])
+    setIsSearching(true)
+    setSearchError(null)
+
+    const searchTimer = window.setTimeout(async () => {
+      try {
+        const tmdbResults = await searchTmdb(query, { signal: controller.signal })
+        setApiResults(tmdbResults)
+      } catch (error) {
+        if (controller.signal.aborted) return
+
+        console.error(error)
+        setApiResults([])
+        setSearchError('TMDB search failed. Showing local fallback results.')
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsSearching(false)
+        }
+      }
+    }, 300)
+
+    return () => {
+      window.clearTimeout(searchTimer)
+      controller.abort()
+    }
+  }, [hasTmdbConfig, isExpanded, normalizedQuery, query])
 
   useEffect(() => {
     if (!isExpanded) return
@@ -137,6 +212,9 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
   const closeSearch = () => {
     setIsExpanded(false)
     setQuery('')
+    setApiResults([])
+    setIsSearching(false)
+    setSearchError(null)
     setSelectedResult(null)
     setSelectedStatus('Planned')
     setHighlightedIndex(-1)
@@ -313,7 +391,7 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
                 ref={inputRef}
                 value={query}
                 aria-label="Search movies, TV series, and anime"
-                placeholder="Search to add..."
+                placeholder="Search TMDB..."
                 onFocus={() => setHighlightedIndex(results.length > 0 ? 0 : -1)}
                 onKeyDown={handleInputKeyDown}
                 onChange={(event) => {
@@ -345,11 +423,47 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
                   transition={panelTransition}
                 >
                   <strong>Search to add</strong>
-                  <span>Try “Dune” to open results below.</span>
+                  <span>Movies and TV come from TMDB. Anime is still using the local catalog.</span>
                 </motion.div>
               )}
 
-              {normalizedQuery && results.length === 0 && (
+              {normalizedQuery && !hasTmdbConfig && (
+                <motion.div
+                  className="nav-search-empty"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={panelTransition}
+                >
+                  <strong>TMDB key missing</strong>
+                  <span>Add VITE_TMDB_API_KEY to .env.local. Showing local mock results for now.</span>
+                </motion.div>
+              )}
+
+              {normalizedQuery && isSearching && (
+                <motion.div
+                  className="nav-search-empty"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={panelTransition}
+                >
+                  <strong>Searching TMDB</strong>
+                  <span>Finding movies and TV series...</span>
+                </motion.div>
+              )}
+
+              {normalizedQuery && searchError && (
+                <motion.div
+                  className="nav-search-empty"
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={panelTransition}
+                >
+                  <strong>TMDB unavailable</strong>
+                  <span>{searchError}</span>
+                </motion.div>
+              )}
+
+              {normalizedQuery && !isSearching && results.length === 0 && (
                 <motion.div
                   className="nav-search-empty"
                   initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
@@ -357,7 +471,7 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
                   transition={panelTransition}
                 >
                   <strong>No results found</strong>
-                  <span>This still uses the mock catalog until the API is connected.</span>
+                  <span>Try a different movie or TV title.</span>
                 </motion.div>
               )}
 
@@ -386,6 +500,7 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
                       <strong>{result.title}</strong>
                       <small>
                         {result.type} • {result.year} • ★ {result.rating}
+                        {result.source === 'tmdb' ? ' • TMDB' : ''}
                         {existingItem ? ` • Saved as ${existingItem.status}` : ''}
                       </small>
                     </span>
