@@ -64,6 +64,10 @@
   background: #111214;
 }
 
+.pill.Watched {
+  background: #a7a7a7;
+}
+
 .modal-footer {
   display: flex;
   flex-wrap: wrap;
