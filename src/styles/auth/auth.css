@@ -265,38 +265,107 @@
 }
 
 .nav-auth-menu {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-.nav-user-pill,
-.nav-auth-action {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  padding: 9px 12px;
-  font-size: 11px;
-  font-weight: 820;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 .nav-user-pill {
-  max-width: 118px;
+  display: inline-flex;
+  max-width: 156px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 9px 12px;
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  font-weight: 860;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: 0.18s ease;
+}
+
+.nav-user-pill:hover,
+.nav-user-pill[aria-expanded='true'] {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.nav-user-pill span:first-child {
   overflow: hidden;
-  color: rgba(255, 255, 255, 0.72);
-  background: rgba(255, 255, 255, 0.06);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.nav-user-chevron {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 13px;
+  line-height: 1;
+}
+
+.nav-account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 80;
+  display: grid;
+  width: min(260px, calc(100vw - 32px));
+  gap: 10px;
+  border-radius: 20px;
+  padding: 12px;
+  background: rgba(9, 9, 11, 0.92);
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.nav-account-details {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 4px 4px 12px;
+}
+
+.nav-account-details span,
+.nav-account-details small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-account-details span {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 860;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.nav-account-details small {
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 11px;
+  font-weight: 680;
+}
+
 .nav-auth-action {
-  color: rgba(255, 255, 255, 0.74);
-  background: transparent;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 11px 12px;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.055);
+  font-size: 11px;
+  font-weight: 880;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
   transition: 0.18s ease;
 }
 
 .nav-auth-action:hover {
+  border-color: rgba(255, 255, 255, 0.24);
   color: #050505;
   background: rgba(255, 255, 255, 0.95);
 }
@@ -352,5 +421,11 @@
   .nav-auth-menu {
     width: 100%;
     justify-content: center;
+  }
+
+  .nav-account-dropdown {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
