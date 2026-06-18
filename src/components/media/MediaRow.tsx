@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import MediaCard from './MediaCard'
@@ -25,6 +25,7 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
   const prefersReducedMotion = useReducedMotion()
   const isMobile = useIsMobile()
   const shouldSimplifyMotion = prefersReducedMotion
+  const shouldUseNativeScroll = isMobile
   const [offset, setOffset] = useState(0)
   const [maxOffset, setMaxOffset] = useState(0)
 
@@ -53,9 +54,15 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
     return () => resizeObserver.disconnect()
   }, [items.length, updateMetrics])
 
+  useEffect(() => {
+    if (shouldUseNativeScroll) {
+      setOffset(0)
+    }
+  }, [shouldUseNativeScroll])
+
   if (items.length === 0) return null
 
-  const showScrollControls = !hideControls && maxOffset > 8
+  const showScrollControls = !shouldUseNativeScroll && !hideControls && maxOffset > 8
 
   const getPageAmount = () => {
     const viewport = viewportRef.current
@@ -115,17 +122,15 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
           </button>
         )}
 
-        <div className="row-scroll" ref={viewportRef}>
+        <div className={`row-scroll${shouldUseNativeScroll ? ' row-scroll-native' : ''}`} ref={viewportRef}>
           <motion.div
             className="row-scroll-track"
             ref={trackRef}
-            animate={{ x: -offset }}
+            animate={{ x: shouldUseNativeScroll ? 0 : -offset }}
             transition={
-              prefersReducedMotion
+              shouldUseNativeScroll || prefersReducedMotion
                 ? { duration: 0 }
-                : isMobile
-                  ? { type: 'spring', stiffness: 340, damping: 38, mass: 0.8 }
-                  : { type: 'spring', stiffness: 280, damping: 36, mass: 0.9 }
+                : { type: 'spring', stiffness: 280, damping: 36, mass: 0.9 }
             }
           >
             {items.map((item, index) => (
