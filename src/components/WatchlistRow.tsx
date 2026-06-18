@@ -16,8 +16,9 @@ export default function WatchlistRow({ title, items, onSelect }: WatchlistRowPro
   const trackRef = useRef<HTMLDivElement | null>(null)
   const [offset, setOffset] = useState(0)
   const [maxOffset, setMaxOffset] = useState(0)
+  const [loopDirection, setLoopDirection] = useState<'left' | 'right'>('right')
   const isInfiniteRow = title.toLowerCase() === 'watched' && items.length > 4
-  const showScrollControls = !isInfiniteRow && items.length > 4 && maxOffset > 8
+  const showScrollControls = items.length > 4 && (isInfiniteRow || maxOffset > 8)
 
   const updateMetrics = useCallback(() => {
     const viewport = viewportRef.current
@@ -52,6 +53,11 @@ export default function WatchlistRow({ title, items, onSelect }: WatchlistRowPro
   if (items.length === 0) return null
 
   const slideRow = (direction: 'left' | 'right') => {
+    if (isInfiniteRow) {
+      setLoopDirection(direction)
+      return
+    }
+
     const track = trackRef.current
     const card = track?.querySelector<HTMLElement>('.media-card-wrapper')
     const cardWidth = card?.offsetWidth ?? 180
@@ -88,7 +94,7 @@ export default function WatchlistRow({ title, items, onSelect }: WatchlistRowPro
             className="row-scroll-button row-scroll-button-left"
             type="button"
             aria-label={`Slide ${title} left`}
-            disabled={offset <= 0}
+            disabled={!isInfiniteRow && offset <= 0}
             onClick={() => slideRow('left')}
           >
             ‹
@@ -97,7 +103,11 @@ export default function WatchlistRow({ title, items, onSelect }: WatchlistRowPro
 
         <div className="row-scroll" ref={viewportRef}>
           {isInfiniteRow ? (
-            <div className="row-scroll-track row-scroll-track-infinite" ref={trackRef} aria-label={`${title} auto-scrolling list`}>
+            <div
+              className={`row-scroll-track row-scroll-track-infinite loop-${loopDirection}`}
+              ref={trackRef}
+              aria-label={`${title} auto-scrolling list`}
+            >
               <div className="row-scroll-set">{renderCards('loop-a')}</div>
               <div className="row-scroll-set" aria-hidden="true">
                 {renderCards('loop-b')}
@@ -121,14 +131,18 @@ export default function WatchlistRow({ title, items, onSelect }: WatchlistRowPro
               className="row-scroll-button row-scroll-button-right"
               type="button"
               aria-label={`Slide ${title} right`}
-              disabled={offset >= maxOffset - 1}
+              disabled={!isInfiniteRow && offset >= maxOffset - 1}
               onClick={() => slideRow('right')}
             >
               ›
             </button>
 
-            <div className="row-fade row-fade-left" aria-hidden="true" />
-            <div className="row-fade row-fade-right" aria-hidden="true" />
+            {!isInfiniteRow && (
+              <>
+                <div className="row-fade row-fade-left" aria-hidden="true" />
+                <div className="row-fade row-fade-right" aria-hidden="true" />
+              </>
+            )}
           </>
         )}
       </div>
