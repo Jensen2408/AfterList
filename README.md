@@ -14,7 +14,7 @@ The goal is to build a clean Apple TV / Netflix-inspired watchlist while learnin
 
 ## Current Status
 
-Phase 1 is mostly complete. The app currently runs on local/mock data, saves to `localStorage`, and uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations.
+Phase 1 is complete and Phase 2 has started. The app saves to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and now supports TMDB-powered movie/TV search when a TMDB env key is configured.
 
 Implemented so far:
 
@@ -31,7 +31,9 @@ Implemented so far:
 - Edit status from the details modal
 - Remove saved item
 - Search button that expands into a nav search bar
-- Mock search result dropdown
+- TMDB movie/TV search when configured
+- Local mock fallback when TMDB is missing or unavailable
+- Mock anime search until an anime API is added
 - Motion search morph and result transitions
 - Search preview/create modal
 - Keyboard navigation for search results
@@ -58,12 +60,12 @@ Implemented so far:
 
 ### Phase 2 — Real API Search/Add Flow
 
-- Connect TMDB for movies and TV series
-- Replace mock movie/TV search results with API results
-- Add loading and error states
-- Map TMDB results into the app `MediaItem` structure
-- Prevent duplicates using API IDs/source IDs
-- Add API-based item creation
+- Connect TMDB for movies and TV series ✅
+- Replace mock movie/TV search results with API results ✅
+- Add loading and error states ✅
+- Map TMDB results into the app `MediaItem` structure ✅
+- Prevent duplicates using API IDs/source IDs ✅
+- Add API-based item creation ✅
 - Add anime API later, likely AniList or Jikan
 
 ### Phase 3 — Accounts and Sync
@@ -79,6 +81,30 @@ Implemented so far:
 - Friend sharing
 - Optional public watchlists
 
+## TMDB Setup
+
+Create a local env file:
+
+```bash
+cp .env.example .env.local
+```
+
+Then add one TMDB credential:
+
+```env
+VITE_TMDB_API_KEY=your_tmdb_v3_api_key
+# or
+VITE_TMDB_ACCESS_TOKEN=your_tmdb_read_access_token
+```
+
+Restart the dev server after changing env files:
+
+```bash
+npm run dev
+```
+
+Important: Vite exposes `VITE_*` variables to the browser bundle. This is fine for local learning, but a production version should proxy TMDB through a backend/serverless function instead of shipping private credentials to the client.
+
 ## Tech Stack
 
 - React
@@ -86,6 +112,7 @@ Implemented so far:
 - Vite
 - CSS
 - Motion / `motion/react`
+- TMDB API
 - Git and GitHub
 
 ## Project Structure
@@ -96,9 +123,10 @@ src/
 │  ├─ layout/       # App shell pieces like nav and footer
 │  ├─ media/        # Media cards, rows, and saved-item details modal
 │  └─ search/       # Search bar, result dropdown, and preview/create flow
-├─ data/            # Temporary demo data and mock search catalog
+├─ data/            # Temporary demo data and mock anime/search fallback catalog
 ├─ hooks/           # Reusable React hooks
 ├─ pages/           # Route pages for home/anime/movies/series
+├─ services/        # API services such as TMDB search
 ├─ styles/
 │  ├─ details/      # Details modal/status editor styles
 │  ├─ hero/         # Hero preview rail styles
