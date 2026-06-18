@@ -145,8 +145,8 @@ function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
               </p>
 
               <div className="empty-home-actions" aria-label="Getting started steps">
-                <span>Search </span>
-                <span>add to List. </span>
+                <span>Search Media </span>
+                <span>Add to List </span>
                 <span>Track everything</span>
               </div>
             </div>
