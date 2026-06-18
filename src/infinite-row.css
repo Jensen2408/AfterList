@@ -1,6 +1,7 @@
-/* Seamless infinite carousel for the Watched row.
-   The track is two identical card sets; Motion translates to -50% so the
-   second copy lines up with the first copy without a visible reset jump. */
+/* Circular infinite carousel for the Watched row.
+   The UI renders several identical sets internally, starts from the middle set,
+   and wraps the Motion x value back into the center range. That keeps the row
+   feeling continuous instead of visibly showing one doubled list. */
 
 .row-scroll-shell.is-infinite .row-scroll {
   overflow: hidden !important;
@@ -25,12 +26,7 @@
   width: max-content !important;
   gap: 0 !important;
   animation: none !important;
-  transform: translate3d(0, 0, 0);
   will-change: transform;
-}
-
-.row-scroll-shell.is-infinite:hover .row-scroll-track-infinite {
-  animation-play-state: paused;
 }
 
 .row-scroll-shell.is-infinite .row-scroll-button {
