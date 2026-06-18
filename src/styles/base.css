@@ -58,7 +58,7 @@ h3,
   min-height: 100vh;
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 0 clamp(16px, 4vw, 44px) 72px;
+  padding: 80px clamp(16px, 4vw, 44px) 72px;
 }
 
 .glass-panel {
@@ -68,8 +68,10 @@ h3,
 }
 
 .nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 20;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -692,7 +694,7 @@ h3,
 
 @media (max-width: 700px) {
   .app { padding: 0 14px 54px; }
-    .nav {
+  .nav {
     position: sticky;
     top: 0;
     grid-template-columns: 1fr;
