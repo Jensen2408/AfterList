@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { motion } from 'motion/react'
 import MediaCard from '../components/MediaCard'
 import MediaDetailsModal from '../components/MediaDetailsModal'
-import type { MediaItem, MediaType } from '../types/media'
+import type { MediaItem, MediaStatus, MediaType } from '../types/media'
 
 type CategoryPageProps = {
   title: string
@@ -11,12 +11,18 @@ type CategoryPageProps = {
   type: MediaType
   items: MediaItem[]
   onRemove: (id: string) => void
+  onStatusChange: (id: string, status: MediaStatus) => void
 }
 
-function CategoryPage({ title, subtitle, type, items, onRemove }: CategoryPageProps) {
+function CategoryPage({ title, subtitle, type, items, onRemove, onStatusChange }: CategoryPageProps) {
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null)
   const filteredItems = items.filter((item) => item.type === type)
   const hero = filteredItems[0]
+
+  const handleStatusChange = (id: string, status: MediaStatus) => {
+    onStatusChange(id, status)
+    setSelectedItem((current) => (current && current.id === id ? { ...current, status } : current))
+  }
 
   return (
     <>
@@ -58,6 +64,7 @@ function CategoryPage({ title, subtitle, type, items, onRemove }: CategoryPagePr
             onRemove(id)
             setSelectedItem(null)
           }}
+          onStatusChange={handleStatusChange}
         />
       )}
     </>
