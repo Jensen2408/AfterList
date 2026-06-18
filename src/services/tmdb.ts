@@ -1,4 +1,4 @@
-import type { SearchCatalogItem } from '../data/searchCatalog'
+import type { SearchResultItem } from '../types/search'
 import type { MediaType } from '../types/media'
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3'
@@ -94,7 +94,7 @@ function buildTmdbImageUrl(path: string | null | undefined, size: 'w500' | 'w128
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`
 }
 
-function mapTmdbResult(result: TmdbSearchResult & { media_type: TmdbMediaType }): SearchCatalogItem | null {
+function mapTmdbResult(result: TmdbSearchResult & { media_type: TmdbMediaType }): SearchResultItem | null {
   const isMovie = result.media_type === 'movie'
   const title = (isMovie ? result.title : result.name)?.trim()
 
@@ -152,6 +152,6 @@ export async function searchTmdb(query: string, options: SearchTmdbOptions = {})
   return (data.results ?? [])
     .filter(isMovieOrTvResult)
     .map(mapTmdbResult)
-    .filter((item): item is SearchCatalogItem => Boolean(item))
+    .filter((item): item is SearchResultItem => Boolean(item))
     .slice(0, 8)
 }
