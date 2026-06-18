@@ -3,6 +3,7 @@ import type { MouseEvent } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import MediaCard from './MediaCard'
 import type { MediaItem } from '../../types/media'
+import { useIsMobile } from '../../hooks/useMediaQuery'
 
 type WatchlistRowProps = {
   title: string
@@ -22,6 +23,8 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
   const viewportRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
   const prefersReducedMotion = useReducedMotion()
+  const isMobile = useIsMobile()
+  const shouldSimplifyMotion = prefersReducedMotion || isMobile
   const [offset, setOffset] = useState(0)
   const [maxOffset, setMaxOffset] = useState(0)
 
@@ -90,10 +93,10 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
   return (
     <motion.section
       className="watchlist-row"
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.5, ease: SLIDE_EASE }}
+      initial={shouldSimplifyMotion ? false : { opacity: 0, y: 24 }}
+      whileInView={shouldSimplifyMotion ? undefined : { opacity: 1, y: 0 }}
+      viewport={shouldSimplifyMotion ? undefined : { once: true, margin: '-80px' }}
+      transition={shouldSimplifyMotion ? { duration: 0 } : { duration: 0.5, ease: SLIDE_EASE }}
     >
       <div className="row-head">
         <h2>{title}</h2>
@@ -120,7 +123,9 @@ export default function WatchlistRow({ title, items, onSelect, hideControls = fa
             transition={
               prefersReducedMotion
                 ? { duration: 0 }
-                : { type: 'spring', stiffness: 280, damping: 36, mass: 0.9 }
+                : isMobile
+                  ? { duration: 0.18, ease: SLIDE_EASE }
+                  : { type: 'spring', stiffness: 280, damping: 36, mass: 0.9 }
             }
           >
             {items.map((item, index) => (
