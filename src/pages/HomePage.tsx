@@ -141,12 +141,12 @@ function HomePage({ items, onRemove, onStatusChange }: HomePageProps) {
               <p className="eyebrow">AfterList library</p>
               <h1>Start your list</h1>
               <p className="hero-description">
-                Search TMDB from the top navigation and add your first anime, movie, or TV series to make this space yours.
+                Search from the top navigation and add your first anime, movie, or TV series to make this space yours.
               </p>
 
               <div className="empty-home-actions" aria-label="Getting started steps">
-                <span>Search TMDB</span>
-                <span>Add to Planned</span>
+                <span>Search </span>
+                <span>add to List. </span>
                 <span>Track everything</span>
               </div>
             </div>
