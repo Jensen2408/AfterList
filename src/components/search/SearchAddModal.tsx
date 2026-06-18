@@ -17,11 +17,25 @@ const springTransition = {
   mass: 0.82,
 } as const
 
+const mobileSpringTransition = {
+  type: 'spring',
+  stiffness: 520,
+  damping: 40,
+  mass: 0.72,
+} as const
+
 const fastSpringTransition = {
   type: 'spring',
   stiffness: 620,
   damping: 44,
   mass: 0.72,
+} as const
+
+const mobileItemTransition = {
+  type: 'spring',
+  stiffness: 560,
+  damping: 42,
+  mass: 0.68,
 } as const
 
 const reducedTransition = { duration: 0.01 } as const
@@ -56,7 +70,7 @@ function createMediaItem(result: SearchCatalogItem, status: MediaStatus): MediaI
 function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps) {
   const shouldReduceMotion = useReducedMotion()
   const isMobile = useIsMobile()
-  const shouldSimplifyMotion = shouldReduceMotion || isMobile
+  const shouldSimplifyMotion = shouldReduceMotion
   const [isExpanded, setIsExpanded] = useState(false)
   const [query, setQuery] = useState('')
   const [selectedResult, setSelectedResult] = useState<SearchCatalogItem | null>(null)
@@ -66,9 +80,13 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
 
   const normalizedQuery = query.trim().toLowerCase()
   const compactTransition = shouldReduceMotion ? reducedTransition : { duration: 0.14, ease: modalEase }
-  const sharedTransition = shouldReduceMotion ? reducedTransition : isMobile ? compactTransition : springTransition
-  const itemTransition = shouldReduceMotion ? reducedTransition : isMobile ? { duration: 0.1, ease: modalEase } : fastSpringTransition
-  const panelTransition = shouldReduceMotion ? reducedTransition : { duration: isMobile ? 0.14 : 0.2, ease: modalEase }
+  const sharedTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobileSpringTransition : springTransition
+  const itemTransition = shouldReduceMotion ? reducedTransition : isMobile ? mobileItemTransition : fastSpringTransition
+  const panelTransition = shouldReduceMotion
+    ? reducedTransition
+    : isMobile
+      ? { type: 'spring', stiffness: 420, damping: 38, mass: 0.76 }
+      : { duration: 0.2, ease: modalEase }
   const detailModalRoot = typeof document === 'undefined' ? null : document.body
 
   const results = useMemo(() => {
@@ -85,9 +103,9 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
   useEffect(() => {
     if (!isExpanded) return
 
-    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), shouldSimplifyMotion ? 0 : 80)
+    const focusTimer = window.setTimeout(() => inputRef.current?.focus(), shouldReduceMotion ? 0 : isMobile ? 40 : 80)
     return () => window.clearTimeout(focusTimer)
-  }, [isExpanded, shouldSimplifyMotion])
+  }, [isExpanded, shouldReduceMotion, isMobile])
 
   useEffect(() => {
     if (!isExpanded) return
@@ -192,10 +210,10 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
             role="dialog"
             aria-modal="true"
             aria-label={`Add ${selectedResult.title}`}
-            initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.985 }}
-            animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-            exit={shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.985 }}
-            transition={shouldSimplifyMotion ? compactTransition : { duration: 0.24, ease: modalEase }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 18, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.985 }}
+            transition={shouldReduceMotion ? compactTransition : { duration: isMobile ? 0.22 : 0.24, ease: modalEase }}
             onClick={(event) => event.stopPropagation()}
           >
             <button className="modal-close" type="button" aria-label="Close preview" onClick={() => setSelectedResult(null)}>
@@ -206,23 +224,23 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
               className="search-detail-backdrop"
               src={selectedResult.backdrop}
               alt=""
-              initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { scale: 1.04, opacity: 0 }}
-              animate={shouldSimplifyMotion ? { opacity: 1 } : { scale: 1, opacity: 1 }}
-              transition={shouldSimplifyMotion ? compactTransition : { duration: 0.34, ease: modalEase }}
+              initial={shouldReduceMotion ? false : { scale: 1.04, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={shouldReduceMotion ? compactTransition : { duration: isMobile ? 0.28 : 0.34, ease: modalEase }}
             />
             <div className="search-detail-body">
               <motion.img
                 className="search-detail-poster"
                 src={selectedResult.poster}
                 alt={selectedResult.title}
-                initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 14, scale: 0.98 }}
-                animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-                transition={shouldSimplifyMotion ? compactTransition : { duration: 0.26, ease: modalEase }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 14, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={shouldReduceMotion ? compactTransition : { duration: isMobile ? 0.22 : 0.26, ease: modalEase }}
               />
               <motion.div
-                initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-                animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                transition={shouldSimplifyMotion ? compactTransition : { duration: 0.24, ease: modalEase, delay: 0.04 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={shouldReduceMotion ? compactTransition : { duration: isMobile ? 0.2 : 0.24, ease: modalEase, delay: 0.04 }}
               >
                 <p className="eyebrow">Preview result</p>
                 <h3>{selectedResult.title}</h3>
@@ -270,9 +288,9 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
               type="button"
               layoutId={shouldSimplifyMotion ? undefined : 'nav-search-control'}
               onClick={openSearch}
-              initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0.76, scale: 0.98 }}
-              animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-              exit={shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
+              initial={shouldReduceMotion ? false : { opacity: 0.76, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
               transition={sharedTransition}
             >
               Search
@@ -282,9 +300,9 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
               key="search-bar"
               className="nav-search-bar"
               layoutId={shouldSimplifyMotion ? undefined : 'nav-search-control'}
-              initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0.82, scale: 0.985 }}
-              animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-              exit={shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, scale: 0.985 }}
+              initial={shouldReduceMotion ? false : { opacity: 0.82, scale: 0.985 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.985 }}
               transition={sharedTransition}
             >
               <span className="nav-search-icon" aria-hidden="true">⌕</span>
@@ -311,16 +329,16 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
           {isExpanded && (
             <motion.div
               className="nav-search-results-popover"
-              initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.988 }}
-              animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-              exit={shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.988 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -6, scale: 0.988 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.988 }}
               transition={panelTransition}
             >
               {!normalizedQuery && (
                 <motion.div
                   className="nav-search-empty"
-                  initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
-                  animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={panelTransition}
                 >
                   <strong>Search to add</strong>
@@ -331,8 +349,8 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
               {normalizedQuery && results.length === 0 && (
                 <motion.div
                   className="nav-search-empty"
-                  initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 4 }}
-                  animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+                  initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={panelTransition}
                 >
                   <strong>No results found</strong>
@@ -353,10 +371,11 @@ function SearchAddModal({ items, onCreate, onOpenExisting }: SearchAddModalProps
                     onFocus={() => setHighlightedIndex(index)}
                     onMouseEnter={() => setHighlightedIndex(index)}
                     onClick={() => handleSelectResult(result)}
-                    initial={shouldReduceMotion ? false : shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: 6, scale: 0.992 }}
-                    animate={shouldSimplifyMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: isSelected ? 1.01 : 1 }}
-                    exit={shouldSimplifyMotion ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.992 }}
-                    whileHover={shouldSimplifyMotion ? undefined : { y: -1, scale: isSelected ? 1.012 : 1.006 }}
+                    initial={shouldReduceMotion ? false : { opacity: 0, y: 6, scale: 0.992 }}
+                    animate={{ opacity: 1, y: 0, scale: isSelected ? 1.01 : 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.992 }}
+                    whileHover={shouldReduceMotion ? undefined : { y: -1, scale: isSelected ? 1.012 : 1.006 }}
+                    whileTap={shouldReduceMotion ? undefined : { scale: 0.985 }}
                     transition={itemTransition}
                   >
                     <img src={result.poster} alt="" loading="lazy" />
