@@ -1,17 +1,19 @@
 import CategoryPage from '../components/CategoryPage'
-import type { MediaItem } from '../types/media'
+import type { MediaItem, MediaStatus } from '../types/media'
 type MoviesPageProps = {
   items: MediaItem[]
   onRemove: (id: string) => void
+  onStatusChange: (id: string, status: MediaStatus) => void
 }
-function MoviesPage({ items, onRemove }: MoviesPageProps) {
+function MoviesPage({ items, onRemove, onStatusChange }: MoviesPageProps) {
   return (
     <CategoryPage
       title="Movies"
       subtitle="Track the movies you are watching, planning, and finishing."
-      type="Movie" 
+      type="Movie"
       items={items}
       onRemove={onRemove}
+      onStatusChange={onStatusChange}
     />
   )
 }
