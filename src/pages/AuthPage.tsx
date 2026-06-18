@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 
@@ -12,7 +13,7 @@ export default function AuthPage({ mode }: AuthPageProps) {
   const [notice, setNotice] = useState('')
   const isSignup = mode === 'signup'
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setNotice('Auth UI is ready. Supabase wiring comes next.')
   }
