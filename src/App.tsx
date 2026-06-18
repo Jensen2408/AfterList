@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { motion } from 'motion/react'
 import HomePage from './pages/HomePage'
@@ -18,7 +17,6 @@ import { useWatchlist } from './hooks/useWatchlist'
 
 function App() {
   const { items, handleAddItem, handleRemoveItem, handleUpdateStatus } = useWatchlist()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   return (
     <main className="app">
@@ -113,9 +111,7 @@ function App() {
           </NavLink>
         </div>
 
-        <button className="nav-search-button" type="button" onClick={() => setIsSearchOpen(true)}>
-          Search
-        </button>
+        <SearchAddModal onCreate={handleAddItem} />
       </nav>
 
       <Routes>
@@ -124,8 +120,6 @@ function App() {
         <Route path="/movies" element={<MoviesPage items={items} onRemove={handleRemoveItem} onStatusChange={handleUpdateStatus} />} />
         <Route path="/series" element={<SeriesPage items={items} onRemove={handleRemoveItem} onStatusChange={handleUpdateStatus} />} />
       </Routes>
-
-      {isSearchOpen && <SearchAddModal onClose={() => setIsSearchOpen(false)} onCreate={handleAddItem} />}
 
       <Footer />
     </main>
