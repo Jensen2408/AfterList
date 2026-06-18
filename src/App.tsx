@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import AnimePage from './pages/AnimePage'
 import MoviesPage from './pages/MoviesPage'
 import SeriesPage from './pages/SeriesPage'
+import AuthPage from './pages/AuthPage'
 import AppNav from './components/layout/AppNav'
 import Footer from './components/layout/Footer'
 import MediaDetailsModal from './components/media/MediaDetailsModal'
@@ -29,6 +30,8 @@ function App() {
         <Route path="/anime" element={<AnimePage items={items} onRemove={handleRemoveItem} onStatusChange={handleUpdateStatus} />} />
         <Route path="/movies" element={<MoviesPage items={items} onRemove={handleRemoveItem} onStatusChange={handleUpdateStatus} />} />
         <Route path="/series" element={<SeriesPage items={items} onRemove={handleRemoveItem} onStatusChange={handleUpdateStatus} />} />
+        <Route path="/login" element={<AuthPage mode="login" />} />
+        <Route path="/signup" element={<AuthPage mode="signup" />} />
       </Routes>
 
       {searchOpenedItem && (
