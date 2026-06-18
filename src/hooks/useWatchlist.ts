@@ -11,8 +11,11 @@ type LegacyMediaItem = Omit<MediaItem, 'status' | 'source'> & {
 
 const apiSources = new Set<MediaSource>(['tmdb', 'anilist'])
 
-function isApiMediaItem(item: LegacyMediaItem): item is LegacyMediaItem & { source: MediaSource; externalId: string } {
-  return Boolean(item.externalId && item.source && apiSources.has(item.source as MediaSource))
+function isApiMediaItem(item: unknown): item is LegacyMediaItem & { source: MediaSource; externalId: string } {
+  if (!item || typeof item !== 'object') return false
+
+  const candidate = item as LegacyMediaItem
+  return Boolean(candidate.externalId && candidate.source && apiSources.has(candidate.source as MediaSource))
 }
 
 function migrateStatus(item: LegacyMediaItem & { source: MediaSource; externalId: string }): MediaItem {
