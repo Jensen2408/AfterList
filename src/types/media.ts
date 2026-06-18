@@ -4,6 +4,20 @@ export type MediaStatus = 'Planned' | 'Watching' | 'Watched' | 'Dropped'
 
 export type MediaSource = 'tmdb' | 'anilist'
 
+export type MediaDetails = {
+  genres: string[]
+  runtimeLabel?: string
+  seasonsLabel?: string
+  episodesLabel?: string
+  status?: string
+  tagline?: string
+  homepage?: string
+  tmdbUrl?: string
+  originalLanguage?: string
+  countries: string[]
+  voteCount?: number
+}
+
 export type MediaItem = {
   id: string
   title: string

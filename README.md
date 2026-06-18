@@ -8,7 +8,7 @@ The goal is to build a clean Apple TV / Netflix-inspired watchlist while learnin
 
 AfterList is deployed on **Vercel** from the `main` branch.
 
-The app uses Vercel's static Vite deployment flow, a Vercel API function for TMDB search, and a `vercel.json` rewrite so direct refreshes on routes like `/anime`, `/movies`, and `/series` work correctly.
+The app uses Vercel's static Vite deployment flow, Vercel API functions for TMDB search/details, and a `vercel.json` rewrite so direct refreshes on routes like `/anime`, `/movies`, and `/series` work correctly.
 
 ## Project Goals
 
@@ -22,7 +22,7 @@ The app uses Vercel's static Vite deployment flow, a Vercel API function for TMD
 
 ## Current Status
 
-Phase 1 is complete and Phase 2 has started. The app saves API-backed items to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and searches TMDB through an AfterList Vercel API proxy.
+Phase 1 is complete and Phase 2 has started. The app saves API-backed items to `localStorage`, uses a polished dark glass UI with Motion-powered hero, carousel, search, and modal animations, and searches/fetches TMDB data through AfterList Vercel API proxies.
 
 Implemented so far:
 
@@ -38,11 +38,13 @@ Implemented so far:
 - Statuses: `Planned`, `Watching`, `Watched`, `Dropped`
 - Automatic migration from old `Completed` status to `Watched`
 - Details modal for saved items
+- Richer TMDB details in saved-item modal: genres, runtime, seasons, episodes, status, country, links, and vote count
 - Motion details modal animation
 - Edit status from the details modal
 - Remove saved item
 - Search button that expands into a nav search bar
 - Server-side TMDB movie/TV search proxy
+- Server-side TMDB movie/TV details proxy
 - Conservative TMDB anime detection for Japanese animation results
 - No local demo/search fallback data
 - Motion search morph and result transitions
@@ -81,6 +83,7 @@ Implemented so far:
 - Add API-based item creation ✅
 - Add TMDB attribution in the UI ✅
 - Move TMDB requests behind a Vercel/serverless API proxy ✅
+- Fetch richer TMDB details for saved items ✅
 - Add anime API later, likely AniList or Jikan
 
 ### Phase 3 — Accounts and Sync
@@ -98,10 +101,12 @@ Implemented so far:
 
 ## TMDB Proxy Setup
 
-AfterList searches TMDB through the Vercel function at:
+AfterList talks to TMDB through Vercel functions:
 
 ```text
 /api/search?query=dune
+/api/details?externalId=movie:550
+/api/details?externalId=tv:1399
 ```
 
 The frontend calls the local API proxy, not TMDB directly. The real TMDB credential should be stored as a server-side environment variable.
@@ -120,7 +125,7 @@ TMDB_API_KEY=your_tmdb_v3_api_key
 TMDB_ACCESS_TOKEN=your_tmdb_read_access_token
 ```
 
-Do **not** use the `VITE_` prefix for TMDB credentials. `VITE_*` values are exposed in the browser bundle, while this project reads `TMDB_*` from the Vercel API function.
+Do **not** use the `VITE_` prefix for TMDB credentials. `VITE_*` values are exposed in the browser bundle, while this project reads `TMDB_*` from Vercel API functions.
 
 For local testing of the API proxy, use Vercel's local dev server:
 
@@ -128,7 +133,7 @@ For local testing of the API proxy, use Vercel's local dev server:
 npx vercel dev
 ```
 
-Using plain `npm run dev` starts Vite only, so `/api/search` will not run locally unless Vercel's dev server is handling the request.
+Using plain `npm run dev` starts Vite only, so `/api/search` and `/api/details` will not run locally unless Vercel's dev server is handling the request.
 
 ## Vercel Deployment
 
@@ -155,7 +160,7 @@ or:
 TMDB_ACCESS_TOKEN=your_tmdb_read_access_token
 ```
 
-Add the variable to **Production** and **Preview** environments so both live and preview deployments can search.
+Add the variable to **Production** and **Preview** environments so both live and preview deployments can search and fetch details.
 
 The project includes `vercel.json` with a single-page-app rewrite that leaves API routes alone:
 
@@ -171,7 +176,7 @@ The project includes `vercel.json` with a single-page-app rewrite that leaves AP
 }
 ```
 
-That keeps route refreshes working for `/anime`, `/movies`, and `/series` without swallowing `/api/search`.
+That keeps route refreshes working for `/anime`, `/movies`, and `/series` without swallowing `/api/search` or `/api/details`.
 
 ## TMDB Notice
 
@@ -194,6 +199,7 @@ TMDB usage in this project is intended for personal, educational, and non-commer
 
 ```text
 api/
+├─ details.ts        # Vercel API proxy for richer TMDB details
 └─ search.ts         # Vercel API proxy for TMDB search
 src/
 ├─ components/
@@ -234,7 +240,7 @@ Start the Vite-only dev server:
 npm run dev
 ```
 
-Start the Vercel dev server when testing `/api/search`:
+Start the Vercel dev server when testing `/api/search` and `/api/details`:
 
 ```bash
 npx vercel dev
